@@ -1,0 +1,39 @@
+{
+  "name": "php-pmd/pmd",
+  "type": "library",
+  "description": "Process manager based on reactPHP",
+  "license": "MIT",
+  "keywords": [
+    "php",
+    "reactPHP",
+    "service",
+    "watcher",
+    "shell",
+    "bash",
+    "pmd"
+  ],
+  "authors": [
+    {
+      "name": "imparting",
+      "email": "1035758885@qq.com",
+      "homepage": "https://github.com/php-pmd/pmd",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "PhpPmd\\Pmd\\": "src"
+    }
+  },
+  "require": {
+    "php": "^7.2",
+    "ext-pcntl": "*",
+    "ext-posix": "*",
+    "react/http": "^1.2",
+    "symfony/yaml": "^5.2"
+  },
+  "bin": [
+    "pmd"
+  ],
+  "minimum-stability": "alpha"
+}
