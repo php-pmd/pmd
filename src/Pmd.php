@@ -33,8 +33,7 @@ class Pmd
         static::parseCommand();
         static::daemonize();
         static::installSignal();
-        exit;
-        static::checkConfigFile();
+        static::start();
     }
 
     protected static function init()
@@ -75,7 +74,7 @@ class Pmd
 
     protected static function initLoop()
     {
-        static::injection('loop', new Factory());
+        static::injection('loop', Factory::create());
     }
 
     protected static function setErrorHandler()
@@ -158,37 +157,19 @@ USAGE;
                 exit(0);
             } elseif (in_array($argv1, ['start', 'stop', 'restart'])) {
                 if (in_array($argv1, ['stop', 'restart'])) {
-                    if (!file_exists(static::$pidFile)) {
+                    if (!\pidFile()->exists()) {
                         \logger()->writeln("Pmd is not running.");
                         exit(0);
                     } else {
-                        $master_pid = \pidFile()->getContent();
-                        $master_pid && \posix_kill($master_pid, SIGHUP);
-                        $timeout = 3;
-                        $start_time = \time();
-                        while (1) {
-                            $master_is_alive = $master_pid && \posix_kill($master_pid, 0);
-                            if ($master_is_alive) {
-                                // Timeout?
-                                if (\time() - $start_time >= $timeout) {
-                                    \logger()->writeln("PMD stop fail.");
-                                    exit;
-                                }
-                                // Waiting amoment.
-                                \usleep(10000);
-                                continue;
-                            }
-                            // Stop success.
-                            \logger()->writeln("PMD stop success.");
-                            if ($argv1 === 'stop') {
+                        if (static::stop()) {
+                            if ($argv1 == 'stop') {
                                 exit(0);
                             }
-                            break;
                         }
                     }
                     $argv1 = 'start';
                 } else {
-                    if (\pidFile()->exists() > 0) {
+                    if (\pidFile()->exists()) {
                         \logger()->writeln("Pmd is already running.");
                         exit(0);
                     }
@@ -223,13 +204,12 @@ USAGE;
         } elseif (0 !== $pid) {
             exit(0);
         }
-        \logger()->dump();
         \pidFile()->setContent(\posix_getpid());
     }
 
     protected static function installSignal()
     {
-        $signalHandler = 'static::signalHandler';
+        $signalHandler = Pmd::class . '::signalHandler';
         // stop
         \pcntl_signal(\SIGINT, $signalHandler, false);
         // stop
@@ -250,8 +230,20 @@ USAGE;
 
     public static function signalHandler($signal)
     {
-        \logger()->writeln($signal);
-        \pidFile()->unlink();
+        switch ($signal) {
+            case \SIGINT:
+            case \SIGTERM:
+            case \SIGHUP:
+                \logger()->writeln("<n>PMD stop success.</n>");
+                exit(0);
+                break;
+            case \SIGUSR1:
+            case \SIGQUIT:
+            case \SIGUSR2:
+            case \SIGIO:
+            case \SIGPIPE:
+                break;
+        }
         /*
         switch ($signal) {
             // Stop.
@@ -284,19 +276,41 @@ USAGE;
         */
     }
 
-    protected static function startPmd()
+    protected static function start()
     {
-
+        \logger()->writeln("<n>PMD start success.</n>");
+        \logger()->dump();
+        \logger()->writeln("PMD start success.");
+        \loop()->addPeriodicTimer(1, function () {
+            \logger()->writeln(time());
+        });
+        \loop()->run();
     }
 
-    protected static function stopPmd()
+    protected static function stop()
     {
-
-    }
-
-    protected static function getPidFile()
-    {
-
+        $master_pid = \pidFile()->getContent();
+        $master_pid && \posix_kill($master_pid, SIGHUP);
+        $timeout = 3;
+        $start_time = \time();
+        while (1) {
+            $master_is_alive = $master_pid && \posix_kill($master_pid, 0);
+            if ($master_is_alive) {
+                // Timeout?
+                if (\time() - $start_time >= $timeout) {
+                    \logger()->writeln("PMD stop fail.");
+                    exit(0);
+                }
+                // Waiting amoment.
+                \usleep(10000);
+                continue;
+            }
+            // Stop success.
+            \logger()->writeln("PMD stop success.");
+            \pidFile()->unlink();
+            break;
+        }
+        return true;
     }
 
     protected static function checkConfigFile()

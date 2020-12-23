@@ -19,8 +19,8 @@ class Logger implements LoggerInterface
     public function dump()
     {
         global $STDOUT, $STDERR;
-//        \set_error_handler(function () {
-//        });
+        \set_error_handler(function () {
+        });
         \fclose(\STDOUT);
         \fclose(\STDERR);
         $STDOUT = \fopen($this->file, "a+");
@@ -28,7 +28,7 @@ class Logger implements LoggerInterface
         // change output stream
         $this->_outputStream = null;
         $this->outputStream($STDOUT);
-//        \restore_error_handler();
+        \restore_error_handler();
         return;
     }
 

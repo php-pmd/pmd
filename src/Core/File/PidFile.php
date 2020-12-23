@@ -14,7 +14,8 @@ class PidFile implements FileInterface
 
     public function getContent()
     {
-        return \is_file($this->file) ? \file_get_contents($this->file) : 0;
+        $pid = \file_get_contents($this->file);
+        return $pid == '' ? 0 : $pid;
     }
 
     public function setContent(string $content)
@@ -24,7 +25,7 @@ class PidFile implements FileInterface
 
     public function exists()
     {
-        return $this->getContent();
+        return $this->getContent() ? true : false;
     }
 
     public function unlink()
