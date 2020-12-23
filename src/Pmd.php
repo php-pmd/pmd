@@ -234,7 +234,7 @@ USAGE;
             case \SIGINT:
             case \SIGTERM:
             case \SIGHUP:
-                \logger()->writeln("<n>PMD stop success.</n>");
+                \logger()->writeln("PMD stop success.");
                 exit(0);
                 break;
             case \SIGUSR1:
@@ -301,12 +301,11 @@ USAGE;
                     \logger()->writeln("PMD stop fail.");
                     exit(0);
                 }
-                // Waiting amoment.
                 \usleep(10000);
                 continue;
             }
             // Stop success.
-            \logger()->writeln("PMD stop success.");
+            \logger()->writeln("<n>PMD stop success.</n>");
             \pidFile()->unlink();
             break;
         }
