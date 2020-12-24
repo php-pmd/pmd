@@ -93,7 +93,7 @@ class Logger implements LoggerInterface
     protected function decoratorMessage($msg, $type = 'INFO')
     {
         $time = date('Y-m-d H:i:s');
-        return "[{$type}}] - [{$time}] {$msg}";
+        return "<g>[{$type}]</g> - [{$time}] {$msg}";
     }
 
     protected function outputStream($stream = null)

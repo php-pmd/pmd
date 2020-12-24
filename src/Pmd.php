@@ -3,10 +3,12 @@
 namespace PhpPmd\Pmd;
 
 use Exception;
+use PhpPmd\Pmd\Core\Command;
 use PhpPmd\Pmd\Core\Di\Container;
 use PhpPmd\Pmd\Core\File\ConfigFile;
 use PhpPmd\Pmd\Core\File\PidFile;
 use PhpPmd\Pmd\Core\File\ProcessFile;
+use PhpPmd\Pmd\Core\Http\Server;
 use PhpPmd\Pmd\Core\Log\Logger;
 use React\EventLoop\Factory;
 
@@ -21,27 +23,22 @@ class Pmd
      */
     public static $container;
     protected static $version = 'v0.0.1';
-    protected static $command;
-    protected $options = [];
 
     public static function run()
     {
         static::checkSapiEnv();
         static::initHomePath();
         static::initLogger();
-        static::initLoop();
         static::loadFunctions();
         static::setExceptionHandler();
         static::initFiles();
         static::parseCommand();
         static::daemonize();
+        static::initLoop();
         static::installSignal();
+        static::initHttpServer();
         static::start();
         static::loopRun();
-    }
-
-    protected static function init()
-    {
     }
 
     protected static function initFiles()
@@ -77,9 +74,9 @@ class Pmd
 
     protected static function setExceptionHandler()
     {
-        \set_exception_handler(function ($code, $msg, $file, $line) {
-            \logger()->error("$msg in file $file on line $line");
-        });
+//        \set_exception_handler(function ($code, $msg, $file, $line) {
+//            \logger()->error("$msg in file $file on line $line");
+//        });
     }
 
     protected static function initHomePath()
@@ -125,59 +122,41 @@ class Pmd
 
     protected static function parseCommand()
     {
-        $version = static::$version;
-        $usage = <<<USAGE
-<y>PMD Version</y>: <g>{$version}</g> 
-<y>Usage</y>: 
-  pmd <g><command></g> <g>[option]</g>
-<y>Description:</y>
-  Process manager based on reactPHP.
-<y>Commands</y>:
-  <g>start</g>\t\tStart PMD.
-  <g>restart</g>\tRestart PMD.
-  <g>stop</g>\t\tStop PMD.
-<y>Options</y>:
-  <g>-u, --user</g>\tSet account.
-  <g>-p, --pass</g>\tSet password.
-      <g>--port</g>\tSet http service port.
-  <g>-h, --help</g>\tDisplay help for the given command. 
-  <g>-v, --version</g>\tDisplay this application version.
-USAGE;
-        $argv = $_SERVER['argv'];
-        $argv1 = $argv[1] ?? '';
-        if ($argv1) {
-            if (in_array($argv1, ['-h', '--help'])) {
-                \logger()->writeln($usage);
-                exit(0);
-            } elseif (in_array($argv1, ['-v', '--version'])) {
+        $command = new Command($_SERVER['argv']);
+        $opcode = $command->parser();
+        $command = $opcode['opcode'];
+        switch ($command) {
+            case 'help':
+                \logger()->writeln(str_replace('{{version}}', static::$version, $opcode['data']));
+                break;
+            case 'version':
                 \logger()->writeln("PMD <g>" . static::$version . "</g>");
-                exit(0);
-            } elseif (in_array($argv1, ['start', 'stop', 'restart'])) {
-                if (in_array($argv1, ['stop', 'restart'])) {
-                    if (!\pidFile()->isRunning()) {
-                        \logger()->writeln("PMD is not running.");
-                        exit(0);
-                    } else {
-                        if (static::stop()) {
-                            if ($argv1 == 'stop') {
-                                exit(0);
-                            }
+                break;
+            case 'restart':
+            case 'stop':
+                if (!\pidFile()->isRunning()) {
+                    \logger()->writeln("PMD is not running.");
+                } else {
+                    if (static::stop()) {
+                        if ($opcode['opcode'] == 'restart') {
+                            $command = 'start';
                         }
                     }
-                    $argv1 = 'start';
-                } else {
-                    if (\pidFile()->isRunning()) {
-                        \logger()->writeln("PMD is already running.");
-                        exit(0);
-                    }
                 }
-                static::$command = $argv1;
-            } else {
-                \logger()->writeln($usage);
-                exit(0);
-            }
+                break;
+            case 'start':
+                if (\pidFile()->isRunning()) {
+                    \logger()->writeln("PMD is already running.");
+                    exit(0);
+                }
+                $command = 'start';
+                break;
+            default:
+                break;
+        }
+        if ($command == 'start') {
+            static::checkConfig($opcode['options']);
         } else {
-            \logger()->writeln($usage);
             exit(0);
         }
     }
@@ -247,9 +226,19 @@ USAGE;
 
     protected static function start()
     {
-        \logger()->writeln("PMD start success[<g>OK</g>].");
+        $startSuccessMsg = PHP_EOL . "PMD start success[<g>OK</g>].";
+        \logger()->writeln($startSuccessMsg);
+        \http()->run();
         \logger()->logDump();
-        \logger()->info("PMD start success[<g>OK</g>].");
+        \logger()->info($startSuccessMsg);
+    }
+
+    protected static function initHttpServer()
+    {
+        static::injection('http', function () {
+            $config = \configFile()->getContent();
+            return (new Server($config['port']));
+        });
     }
 
     protected static function loopRun()
@@ -281,39 +270,49 @@ USAGE;
         return true;
     }
 
-    protected static function checkConfigFile()
+    protected static function checkConfig($options)
     {
-        $config_file = PMD_HOME . 'config.yaml';
-        if (!file_exists($config_file)) {
-            $account = static::getStdinValue(
-                'Please enter the admin account <g>(user)</g>:',
-                'user',
-                function ($value) {
-                    $result = preg_match('/^[a-zA-Z]{4,16}$/', $value);
-                    if (!$result) static::writeln("Must be <g>4-16</g> letters.");
-                    return $result;
-                }
-            );
-            $password = static::getStdinValue(
-                'Please enter the admin password <g>(123456)</g>:',
-                '123456',
-                function ($value) {
-                    $result = preg_match('/[a-zA-Z0-9]{6,16}$/', $value);
-                    if (!$result) static::writeln("Must start with a letter, <g>6-16</g> letters or numbers.");
-                    return $result;
-                }
-            );
-            $port = static::getStdinValue(
-                'Please enter the http service port <g>(2345)</g>:',
-                2345,
-                function ($value) {
-                    $result = $value > 1024 && $value < 65535;
-                    if (!$result) static::writeln("Must be between <g>1024</g> and <g>65535</g>.");
-                    return $result;
-                }
-            );
-            var_dump($account, $password, $port);
+        $config = \configFile()->getContent();
+        foreach ($config as $key => $value) {
+            $config[$key] = $options[$key] ?? $value;
         }
+        $userRegx = function ($value) {
+            $result = preg_match('/^[a-zA-Z]{4,16}$/', $value);
+            if (!$result) \logger()->writeln("The manager account must be <g>4-16</g> letters.");
+            return $result;
+        };
+        if (!isset($config['user']) || $config['user'] == null || !$userRegx($config['user'])) {
+            $config['user'] = static::getStdinValue(
+                'Please enter the manager account <g>(user)</g>:',
+                'user',
+                $userRegx
+            );
+        }
+        $passRegx = function ($value) {
+            $result = preg_match('/[a-zA-Z0-9]{6,16}$/', $value);
+            if (!$result) \logger()->writeln("The manager password must start with a letter, <g>6-16</g> letters or numbers.");
+            return $result;
+        };
+        if (!isset($config['pass']) || $config['pass'] == null || !$passRegx($config['pass'])) {
+            $config['pass'] = static::getStdinValue(
+                'Please enter the manager password <g>(123456)</g>:',
+                '123456',
+                $passRegx
+            );
+        }
+        $portRegx = function ($value) {
+            $result = $value > 1024 && $value < 65535;
+            if (!$result) \logger()->writeln("The HTTP service port must be between <g>1024</g> and <g>65535</g>.");
+            return $result;
+        };
+        if (!isset($config['port']) || $config['port'] == null || !$portRegx($config['port'])) {
+            $config['port'] = static::getStdinValue(
+                'Please enter the HTTP service port <g>(2345)</g>:',
+                2345,
+                $portRegx
+            );
+        }
+        \configFile()->setContent($config);
     }
 
     protected static function getStdinValue($tips, $default, $callback = null)
@@ -325,11 +324,9 @@ USAGE;
         }
         $fs = true;
         do {
+            \logger()->write($tips);
             if ($fs) {
-                static::write($tips);
                 $fs = false;
-            } else {
-                static::write('Please enter again：');
             }
             $value = trim(fgets(STDIN));
             if ($value == '') $value = $default;

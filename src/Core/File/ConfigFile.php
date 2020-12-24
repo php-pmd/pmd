@@ -2,6 +2,8 @@
 
 namespace PhpPmd\Pmd\Core\File;
 
+use Symfony\Component\Yaml\Yaml;
+
 class ConfigFile implements FileInterface
 {
     protected $file;
@@ -14,11 +16,11 @@ class ConfigFile implements FileInterface
 
     public function getContent()
     {
-        // TODO: Implement getContent() method.
+        return Yaml::parse(@file_get_contents($this->file)) ?? [];
     }
 
-    public function setContent(string $content)
+    public function setContent($content)
     {
-        // TODO: Implement setContent() method.
+        @file_put_contents($this->file, Yaml::dump($content));
     }
 }

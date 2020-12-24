@@ -10,5 +10,5 @@ interface FileInterface
 
     public function getContent();
 
-    public function setContent(string $content);
+    public function setContent($content);
 }

@@ -7,5 +7,5 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     define('TMP', 'PRO');
     require __DIR__ . '/../../autoload.php';
 }
-\PhpPmd\Pmd\Pmd::run();
+PhpPmd\Pmd\Pmd::run();
 

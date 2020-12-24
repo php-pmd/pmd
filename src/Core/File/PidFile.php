@@ -18,7 +18,7 @@ class PidFile implements FileInterface
         return $pid == '' ? 0 : $pid;
     }
 
-    public function setContent(string $content)
+    public function setContent($content)
     {
         @file_put_contents($this->file, $content);
     }
