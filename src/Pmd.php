@@ -75,14 +75,14 @@ class Pmd
 
     protected static function setExceptionHandler()
     {
-//        \set_exception_handler(function ($code, $msg, $file, $line) {
-//            \logger()->error("$msg in file $file on line $line");
-//        });
+        \set_exception_handler(function ($code, $msg, $file, $line) {
+            \logger()->error("$msg in file $file on line $line");
+        });
     }
 
     protected static function initHomePath()
     {
-        if (TMP == 'DEV') {
+        if (ENV == 'DEV') {
             define('PMD_HOME', __DIR__ . '/../tmp');
         } else {
             define('PMD_HOME', getenv('HOME') . DIRECTORY_SEPARATOR . '.pmd');
@@ -169,7 +169,7 @@ class Pmd
         if (-1 === $pid) {
             throw new Exception('Fork fail');
         } elseif ($pid > 0) {
-            usleep(100000);
+            usleep(500000);
             exit(0);
         }
         if (-1 === \posix_setsid()) {
@@ -180,7 +180,7 @@ class Pmd
         if (-1 === $pid) {
             throw new Exception("Fork fail");
         } elseif (0 !== $pid) {
-            usleep(100000);
+            usleep(500000);
             exit(0);
         }
         \pidFile()->setContent(\posix_getpid());
@@ -231,7 +231,7 @@ class Pmd
     {
         $startSuccessMsg = "PMD start success[<g>OK</g>].";
         \logger()->writeln($startSuccessMsg);
-        \http()->run();
+        \http()->server();
         \logger()->logDump();
         \logger()->info($startSuccessMsg);
     }

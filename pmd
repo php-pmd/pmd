@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    define('TMP', 'DEV');
+    define('ENV', 'DEV');
     require __DIR__ . '/vendor/autoload.php';
 } else {
-    define('TMP', 'PRO');
+    define('ENV', 'PRO');
     require __DIR__ . '/../../autoload.php';
 }
 PhpPmd\Pmd\Pmd::run();
