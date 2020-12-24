@@ -39,6 +39,7 @@ class Pmd
         static::initHttpServer();
         static::start();
         static::loopRun();
+
     }
 
     protected static function initFiles()
@@ -168,6 +169,7 @@ class Pmd
         if (-1 === $pid) {
             throw new Exception('Fork fail');
         } elseif ($pid > 0) {
+            usleep(100000);
             exit(0);
         }
         if (-1 === \posix_setsid()) {
@@ -178,6 +180,7 @@ class Pmd
         if (-1 === $pid) {
             throw new Exception("Fork fail");
         } elseif (0 !== $pid) {
+            usleep(100000);
             exit(0);
         }
         \pidFile()->setContent(\posix_getpid());
@@ -226,7 +229,7 @@ class Pmd
 
     protected static function start()
     {
-        $startSuccessMsg = PHP_EOL . "PMD start success[<g>OK</g>].";
+        $startSuccessMsg = "PMD start success[<g>OK</g>].";
         \logger()->writeln($startSuccessMsg);
         \http()->run();
         \logger()->logDump();
