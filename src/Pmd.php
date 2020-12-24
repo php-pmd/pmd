@@ -21,29 +21,27 @@ class Pmd
      */
     public static $container;
     protected static $version = 'v0.0.1';
-    protected static $pmdPid;
-    protected static $pidFile;
     protected static $command;
     protected $options = [];
 
     public static function run()
     {
         static::checkSapiEnv();
-        static::init();
-        static::parseCommand();
-        static::daemonize();
-        static::installSignal();
-        static::start();
-    }
-
-    protected static function init()
-    {
         static::initHomePath();
         static::initLogger();
         static::initLoop();
         static::loadFunctions();
-        static::setErrorHandler();
+        static::setExceptionHandler();
         static::initFiles();
+        static::parseCommand();
+        static::daemonize();
+        static::installSignal();
+        static::start();
+        static::loopRun();
+    }
+
+    protected static function init()
+    {
     }
 
     protected static function initFiles()
@@ -77,20 +75,19 @@ class Pmd
         static::injection('loop', Factory::create());
     }
 
-    protected static function setErrorHandler()
+    protected static function setExceptionHandler()
     {
-//        \set_error_handler(function ($code, $msg, $file, $line) {
-//            \logger()->writeln("$msg in file $file on line $line");
-//        });
+        \set_exception_handler(function ($code, $msg, $file, $line) {
+            \logger()->error("$msg in file $file on line $line");
+        });
     }
 
     protected static function initHomePath()
     {
-        define('DIR_SEP', DIRECTORY_SEPARATOR);
-        if (TMP) {
+        if (TMP == 'DEV') {
             define('PMD_HOME', __DIR__ . '/../tmp');
         } else {
-            define('PMD_HOME', getenv('HOME') . DIR_SEP . '.pmd');
+            define('PMD_HOME', getenv('HOME') . DIRECTORY_SEPARATOR . '.pmd');
         }
         try {
             if (!is_dir(PMD_HOME)) {
@@ -157,8 +154,8 @@ USAGE;
                 exit(0);
             } elseif (in_array($argv1, ['start', 'stop', 'restart'])) {
                 if (in_array($argv1, ['stop', 'restart'])) {
-                    if (!\pidFile()->exists()) {
-                        \logger()->writeln("Pmd is not running.");
+                    if (!\pidFile()->isRunning()) {
+                        \logger()->writeln("PMD is not running.");
                         exit(0);
                     } else {
                         if (static::stop()) {
@@ -169,8 +166,8 @@ USAGE;
                     }
                     $argv1 = 'start';
                 } else {
-                    if (\pidFile()->exists()) {
-                        \logger()->writeln("Pmd is already running.");
+                    if (\pidFile()->isRunning()) {
+                        \logger()->writeln("PMD is already running.");
                         exit(0);
                     }
                 }
@@ -211,21 +208,14 @@ USAGE;
     {
         $signalHandler = Pmd::class . '::signalHandler';
         // stop
-        \pcntl_signal(\SIGINT, $signalHandler, false);
-        // stop
-        \pcntl_signal(\SIGTERM, $signalHandler, false);
-        // graceful stop
-        \pcntl_signal(\SIGHUP, $signalHandler, false);
-        // reload
-        \pcntl_signal(\SIGUSR1, $signalHandler, false);
-        // graceful reload
-        \pcntl_signal(\SIGQUIT, $signalHandler, false);
-        // status
-        \pcntl_signal(\SIGUSR2, $signalHandler, false);
-        // connection status
-        \pcntl_signal(\SIGIO, $signalHandler, false);
-        // ignore
-        \pcntl_signal(\SIGPIPE, \SIG_IGN, false);
+        \loop()->addSignal(\SIGINT, $signalHandler);
+        \loop()->addSignal(\SIGTERM, $signalHandler);
+        \loop()->addSignal(\SIGHUP, $signalHandler);
+
+        \loop()->addSignal(\SIGUSR1, $signalHandler);
+        \loop()->addSignal(\SIGUSR2, $signalHandler);
+        \loop()->addSignal(\SIGQUIT, $signalHandler);
+        \loop()->addSignal(\SIGIO, $signalHandler);
     }
 
     public static function signalHandler($signal)
@@ -234,8 +224,8 @@ USAGE;
             case \SIGINT:
             case \SIGTERM:
             case \SIGHUP:
-                \logger()->writeln("PMD stop success.");
-                exit(0);
+                \logger()->info("PMD stop success[<g>OK</g>].");
+                static::clearAll();
                 break;
             case \SIGUSR1:
             case \SIGQUIT:
@@ -244,69 +234,48 @@ USAGE;
             case \SIGPIPE:
                 break;
         }
-        /*
-        switch ($signal) {
-            // Stop.
-            case \SIGINT:
-            case \SIGTERM:
-                static::$_gracefulStop = false;
-                static::stopAll();
-                break;
-            // Graceful stop.
-            case \SIGHUP:
-                static::$_gracefulStop = true;
-                static::stopAll();
-                break;
-            // Reload.
-            case \SIGQUIT:
-            case \SIGUSR1:
-                static::$_gracefulStop = $signal === \SIGQUIT;
-                static::$_pidsToRestart = static::getAllWorkerPids();
-                static::reload();
-                break;
-            // Show status.
-            case \SIGUSR2:
-                static::writeStatisticsToStatusFile();
-                break;
-            // Show connection status.
-            case \SIGIO:
-                static::writeConnectionsStatisticsToStatusFile();
-                break;
-        }
-        */
+    }
+
+    private static function clearAll()
+    {
+        \pidFile()->unlink();
+        \logger()->close();
+        \loop()->futureTick(function () {
+            \loop()->stop();
+        });
     }
 
     protected static function start()
     {
-        \logger()->writeln("<n>PMD start success.</n>");
-        \logger()->dump();
-        \logger()->writeln("PMD start success.");
-        \loop()->addPeriodicTimer(1, function () {
-            \logger()->writeln(time());
-        });
+        \logger()->writeln("PMD start success[<g>OK</g>].");
+        \logger()->logDump();
+        \logger()->info("PMD start success[<g>OK</g>].");
+    }
+
+    protected static function loopRun()
+    {
         \loop()->run();
     }
 
     protected static function stop()
     {
         $master_pid = \pidFile()->getContent();
-        $master_pid && \posix_kill($master_pid, SIGHUP);
+        $master_pid && \posix_kill($master_pid, \SIGINT);
         $timeout = 3;
         $start_time = \time();
         while (1) {
+            \usleep(10000);
             $master_is_alive = $master_pid && \posix_kill($master_pid, 0);
             if ($master_is_alive) {
                 // Timeout?
                 if (\time() - $start_time >= $timeout) {
-                    \logger()->writeln("PMD stop fail.");
+                    \logger()->writeln("PMD stop fail[<r>BAD</r>].");
                     exit(0);
                 }
-                \usleep(10000);
                 continue;
             }
             // Stop success.
-            \logger()->writeln("<n>PMD stop success.</n>");
-            \pidFile()->unlink();
+            \logger()->writeln("PMD stop success[<g>OK</g>].");
             break;
         }
         return true;
@@ -368,26 +337,4 @@ USAGE;
         return $value;
     }
 
-    protected static function write($message)
-    {
-        \logger()->write(static::decorated($message));
-    }
-
-    protected static function writeln($message)
-    {
-        static::write($message . PHP_EOL);
-    }
-
-    protected static function decorated($msg)
-    {
-        $line = "\033[1A\n\033[K";
-        $red = "\033[31m";
-        $white = "\033[47;30m";
-        $yellow = "\033[33m";
-        $green = "\033[32;40m";
-        $end = "\033[0m";
-        $msg = \str_replace(array('<n>', '<r>', '<y>', '<w>', '<g>'), array($line, $red, $yellow, $white, $green), $msg);
-        $msg = \str_replace(array('</n>', '</r>', '</y>', '</w>', '</g>'), $end, $msg);
-        return $msg;
-    }
 }

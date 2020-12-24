@@ -16,10 +16,10 @@ class Logger implements LoggerInterface
         if (!file_exists($this->file)) \touch($this->file);
     }
 
-    public function dump()
+    public function logDump()
     {
         global $STDOUT, $STDERR;
-        \set_error_handler(function () {
+        \set_exception_handler(function () {
         });
         \fclose(\STDOUT);
         \fclose(\STDERR);
@@ -28,8 +28,13 @@ class Logger implements LoggerInterface
         // change output stream
         $this->_outputStream = null;
         $this->outputStream($STDOUT);
-        \restore_error_handler();
+        \restore_exception_handler();
         return;
+    }
+
+    public function close()
+    {
+        \fclose($this->outputStream());
     }
 
     public function write($msg)
@@ -47,6 +52,8 @@ class Logger implements LoggerInterface
             $end = "\033[0m";
             $msg = \str_replace(array('<n>', '<r>', '<y>', '<w>', '<g>'), array($line, $red, $yellow, $white, $green), $msg);
             $msg = \str_replace(array('</n>', '</r>', '</y>', '</w>', '</g>'), $end, $msg);
+        } else {
+            $msg = \str_replace(array('<n>', '<r>', '<y>', '<w>', '<g>', '</n>', '</r>', '</y>', '</w>', '</g>'), '', $msg);
         }
         \fwrite($stream, $msg);
         \fflush($stream);
@@ -56,6 +63,37 @@ class Logger implements LoggerInterface
     public function writeln($msg)
     {
         $this->write($msg . PHP_EOL);
+    }
+
+    public function info($msg)
+    {
+        $this->writeln($this->decoratorMessage($msg, 'INFO'));
+    }
+
+    public function error($msg)
+    {
+        $this->writeln($this->decoratorMessage($msg, 'ERROR'));
+    }
+
+    public function debug($msg)
+    {
+        $this->writeln($this->decoratorMessage($msg, 'DEBUG'));
+    }
+
+    public function trace($msg)
+    {
+        $this->writeln($this->decoratorMessage($msg, 'TRACE'));
+    }
+
+    public function warning($msg)
+    {
+        $this->writeln($this->decoratorMessage($msg, 'WARNING'));
+    }
+
+    protected function decoratorMessage($msg, $type = 'INFO')
+    {
+        $time = date('Y-m-d H:i:s');
+        return "[{$type}}] - [{$time}] {$msg}";
     }
 
     protected function outputStream($stream = null)

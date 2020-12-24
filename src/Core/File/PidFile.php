@@ -23,9 +23,10 @@ class PidFile implements FileInterface
         @file_put_contents($this->file, $content);
     }
 
-    public function exists()
+    public function isRunning()
     {
-        return $this->getContent() ? true : false;
+        $pid = $this->getContent();
+        return $pid && \posix_kill($pid, 0);
     }
 
     public function unlink()
