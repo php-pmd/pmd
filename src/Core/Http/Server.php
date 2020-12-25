@@ -13,7 +13,7 @@ class Server
     public function __construct($port = 2345)
     {
         $this->port = $port;
-        Route::get('/', "Controller\\LoginController@signIn");
+        Route::get('/', "Controller\\IndexController@index");
     }
 
     public function server()
