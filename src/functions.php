@@ -64,3 +64,13 @@ if (!function_exists('configFile')) {
         return PhpPmd\Pmd\Pmd::$container->get('configFile');
     }
 }
+
+if (!function_exists('view')) {
+    /**
+     * @return \PhpPmd\Pmd\Core\Http\Template
+     */
+    function view()
+    {
+        return PhpPmd\Pmd\Pmd::$container->get('view');
+    }
+}

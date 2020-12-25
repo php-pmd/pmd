@@ -29,6 +29,7 @@
     "php": "^7.2",
     "ext-pcntl": "*",
     "ext-posix": "*",
+    "ext-json": "*",
     "react/http": "^1.2",
     "symfony/yaml": "^5.2"
   },

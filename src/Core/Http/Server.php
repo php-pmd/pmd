@@ -4,6 +4,7 @@ namespace PhpPmd\Pmd\Core\Http;
 
 use React\Http\Server as HttpServer;
 use React\Socket\Server as SocketServer;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Server
 {
@@ -12,21 +13,13 @@ class Server
     public function __construct($port = 2345)
     {
         $this->port = $port;
+        Route::get('/login', "Controller\\LoginController@signIn");
     }
 
     public function server()
     {
-        $httpServer = new HttpServer(\loop(), function (\Psr\Http\Message\ServerRequestInterface $request) {
-            $uri = $request->getUri()->getPath();
-            $get = $request->getQueryParams();
-            $post = $request->getParsedBody();
-            return new \React\Http\Message\Response(
-                200,
-                array(
-                    'Content-Type' => 'text/plain'
-                ),
-                "Hello world!\n"
-            );
+        $httpServer = new HttpServer(\loop(), function (ServerRequestInterface $request) {
+            return Route::dispatch($request);
         });
         $httpServer->listen(new SocketServer($this->port, \loop()));
         \logger()->writeln("Http server run on http://127.0.0.1:{$this->port}.");

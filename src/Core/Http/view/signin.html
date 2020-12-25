@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>PMD Console</title>
+    <meta name="viewport" content="user-scalable=0">
+    <style>
+        body, td, input, select, textarea, a {
+            font: 12px/1.5em arial, helvetica, verdana, sans-serif;
+            color: #333;
+        }
+
+        html, body, form, fieldset, h1, h2, h3, h4, h5, h6,
+        p, pre, blockquote, ul, ol, dl, address {
+            margin: 0;
+            padding: 0;
+        }
+
+        form label {
+            cursor: pointer;
+        }
+
+        fieldset {
+            border: none;
+        }
+
+        img, table {
+            border-width: 0;
+        }
+
+        body {
+            background-color: #FFFFF3;
+            color: #333;
+        }
+
+        a:link,
+        a:visited {
+            color: #333;
+        }
+
+        a:hover {
+            color: #000;
+        }
+
+        .left {
+            float: left;
+        }
+
+        .right {
+            text-align: right;
+            float: right;
+        }
+
+        .clr:after {
+            content: ".";
+            display: block;
+            height: 0;
+            clear: both;
+            visibility: hidden;
+        }
+
+        .clr {
+            display: inline-block;
+        }
+
+        * html .clr {
+            height: 1%;
+        }
+
+        .clr {
+            display: block;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        #wrapper {
+            min-height: 100%;
+            height: auto !important;
+            height: 100%;
+            width: 80%;
+            margin: 0 auto -31px;
+        }
+
+        #footer,
+        .push {
+            height: 30px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #header {
+            padding: 10px 0 13px 0;
+        }
+
+        .status_msg {
+            padding: 5px 10px;
+            border: 1px solid #919191;
+            background-color: #FBFBFB;
+            color: #000000;
+        }
+
+        #buttons {
+            margin: 13px 0;
+        }
+
+        #buttons li {
+            float: left;
+            display: block;
+        }
+
+        #buttons .left li {
+            margin: 0 7px 0 0;
+        }
+
+        #buttons .right li {
+            margin: 0 0 0 7px;
+        }
+
+        #buttons a {
+            float: left;
+            display: block;
+            padding: 1px 0 0 0;
+        }
+
+        #buttons a, #buttons a:link {
+            text-decoration: none;
+        }
+
+        table {
+            width: 100%;
+            border: 1px solid #919191;
+        }
+
+        th {
+            background-color: #919191;
+            color: #fff;
+            text-align: left;
+        }
+
+        th.name {
+            width: 20%;
+            max-width: 20%;
+        }
+
+        th.desc {
+            width: 20%;
+            max-width: 20%;
+        }
+
+        th.processnum {
+            width: 10%;
+            max-width: 10%;
+        }
+
+        th.processmanage {
+            width: 10%;
+            max-width: 10%;
+        }
+
+        th.state {
+            width: 10%;
+            max-width: 10%;
+        }
+
+        th.action {
+            width: 30%;
+            max-width: 30%;
+        }
+
+        td, th {
+            padding: 4px 8px;
+            border-bottom: 1px solid #fff;
+        }
+
+        tr td {
+            background-color: #FBFBFB;
+        }
+
+        tr.shade td {
+            background-color: #F0F0F0;
+        }
+
+        .action ul {
+            list-style: none;
+            display: inline;
+        }
+
+        .action li {
+            margin-right: 10px;
+            display: inline;
+        }
+
+        .status span {
+            display: block;
+            width: 60px;
+            height: 16px;
+            border: 1px solid #fff;
+            text-align: center;
+            font-size: 95%;
+            line-height: 1.4em;
+        }
+
+        #footer {
+            width: 80%;
+            margin: 0 auto;
+            padding: 0 10px;
+            line-height: 30px;
+            border: 1px solid #C8C8C2;
+            border-bottom-width: 0;
+            background-color: #FBFBFB;
+            overflow: hidden;
+            opacity: 0.7;
+            color: #000;
+            font-size: 95%;
+        }
+
+        .statusnominal {
+            background-color: #eff08b;
+        }
+
+        .statusrunning {
+            background-color: #8fe384;
+        }
+
+        .statuserror {
+            background-color: #e59296;
+        }
+
+        #footer a {
+            font-size: inherit;
+        }
+    </style>
+</head>
+<body>
+<div id="wrapper">
+    <div id="header">
+        <span><h1>PMD Console</h1></span>
+    </div>
+    <div>
+        <hr>
+        <div class="status_msg">Process workerman restarted</div>
+        <ul class="clr" id="buttons">
+            <div class="left">
+                <li id="refresh"><a href="index.html?action=refresh">
+                    <button>刷新</button>
+                </a></li>
+                <li id="restart_all"><a href="index.html?action=restartall">
+                    <button>全部重启</button>
+                </a></li>
+                <li id="stop_all"><a href="index.html?action=stopall">
+                    <button>全部停止</button>
+                </a></li>
+            </div>
+            <div class="right">
+                <li id="add"><a href="index.html?action=add">
+                    <button>添加</button>
+                </a></li>
+                <li id="set"><a href="index.html?action=add">
+                    <button>设置</button>
+                </a></li>
+            </div>
+        </ul>
+        <table cellspacing="0">
+            <thead>
+            <tr>
+                <th class="name">名称</th>
+                <th class="desc">描述</th>
+                <th class="processnum">进程数</th>
+                <th class="processmanage">进程增减</th>
+                <th class="state">状态</th>
+                <th class="action">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="">
+                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
+                <td><span>pid 138, 运行时长 0:00:38</span></td>
+                <td>1/4</td>
+                <td class="action">
+                    <ul>
+                        <li>
+                            <a href="logtail/workerman" name="Tail -f" target="_blank">增</a>
+                        </li>
+                        <li>
+                            <a href="logtail/workerman" name="Tail -f" target="_blank">减</a>
+                        </li>
+                    </ul>
+                </td>
+                <td class="status"><span class="statusrunning">运行中</span></td>
+                <td class="action">
+                    <ul>
+                        <li>
+                            <a href="index.html?processname=workerman&amp;action=restart" name="Restart">重启</a>
+                        </li>
+                        <li>
+                            <a href="index.html?processname=workerman&amp;action=stop" name="Stop">停止</a>
+                        </li>
+                        <li>
+                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
+                        </li>
+                        <li>
+                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="">
+                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
+                <td><span>Dec 25 02:34 PM</span></td>
+                <td>0/4</td>
+                <td class="action"></td>
+                <td class="status"><span class="statusnominal">已停止</span></td>
+                <td class="action">
+                    <ul>
+                        <li>
+                            <a href="index.html?processname=workerman&amp;action=start" name="Start">开启</a>
+                        </li>
+                        <li>
+                            <a href="logtail/workerman" name="Delete" target="_blank">删除</a>
+                        </li>
+                        <li>
+                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
+                        </li>
+                        <li>
+                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            <tr class="">
+                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
+                <td><span>Dec 25 02:34 PM</span></td>
+                <td>0/4</td>
+                <td class="action"></td>
+                <td class="status"><span class="statuserror">异常</span></td>
+                <td class="action">
+                    <ul>
+                        <li>
+                            <a href="index.html?processname=workerman&amp;action=start" name="Start">开启</a>
+                        </li>
+                        <li>
+                            <a href="logtail/workerman" name="Delete" target="_blank">删除</a>
+                        </li>
+                        <li>
+                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
+                        </li>
+                        <li>
+                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="push">
+    </div>
+</div>
+<div class="clr" id="footer">
+    <div class="left">
+        <a href="https://github.com/php-pmd/pmd" target="_blank">PMD</a> <span>0.0.1</span>, Theme by supervisor.
+    </div>
+    <div class="right">
+        <strong>Copyright © <a href="https://github.com/imparting" target="_blank">Imparting</a> All rights
+            reserved</strong>
+    </div>
+</div>
+</body>
+</html>

@@ -9,6 +9,7 @@ use PhpPmd\Pmd\Core\File\ConfigFile;
 use PhpPmd\Pmd\Core\File\PidFile;
 use PhpPmd\Pmd\Core\File\ProcessFile;
 use PhpPmd\Pmd\Core\Http\Server;
+use PhpPmd\Pmd\Core\Http\Template;
 use PhpPmd\Pmd\Core\Log\Logger;
 use React\EventLoop\Factory;
 
@@ -75,8 +76,13 @@ class Pmd
 
     protected static function setExceptionHandler()
     {
-        \set_exception_handler(function ($code, $msg, $file, $line) {
+        \set_error_handler(function ($code, $msg, $file, $line) {
             \logger()->error("$msg in file $file on line $line");
+        });
+        \set_exception_handler(function ($code, $msg, $file, $line) {
+            echo "$msg in file $file on line $line";
+            \logger()->error("$msg in file $file on line $line");
+            exit(0);
         });
     }
 
@@ -91,11 +97,11 @@ class Pmd
             if (!is_dir(PMD_HOME)) {
                 $res = mkdir(PMD_HOME, 0777, true);
                 if (!$res) {
-                    throw new Exception('Create ' . PMD_HOME . ' fail.');
+                    exit('Create ' . PMD_HOME . ' fail.' . PHP_EOL);
                 }
             }
         } catch (Exception $exception) {
-            exit($exception->getMessage());
+            exit($exception->getMessage() . PHP_EOL);
         }
         define('PMD_ROOT', __DIR__);
     }
@@ -167,18 +173,18 @@ class Pmd
         \umask(0);
         $pid = \pcntl_fork();
         if (-1 === $pid) {
-            throw new Exception('Fork fail');
+            exit('Fork fail' . PHP_EOL);
         } elseif ($pid > 0) {
             usleep(500000);
             exit(0);
         }
         if (-1 === \posix_setsid()) {
-            throw new Exception("Setsid fail");
+            exit("Setsid fail" . PHP_EOL);
         }
         // Fork again avoid SVR4 system regain the control of terminal.
         $pid = \pcntl_fork();
         if (-1 === $pid) {
-            throw new Exception("Fork fail");
+            exit("Fork fail" . PHP_EOL);
         } elseif (0 !== $pid) {
             usleep(500000);
             exit(0);
@@ -238,6 +244,9 @@ class Pmd
 
     protected static function initHttpServer()
     {
+        static::injection('view', function () {
+            return new Template();
+        });
         static::injection('http', function () {
             $config = \configFile()->getContent();
             return (new Server($config['port']));
