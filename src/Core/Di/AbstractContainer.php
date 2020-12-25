@@ -2,6 +2,9 @@
 
 namespace PhpPmd\Pmd\Core\Di;
 
+use PhpPmd\Pmd\Core\Di\Exception\ContainerException;
+use PhpPmd\Pmd\Core\Di\Exception\NotFoundException;
+
 abstract class AbstractContainer implements ContainerInterface
 {
     protected $__resolvedEntries = [];

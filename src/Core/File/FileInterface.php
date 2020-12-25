@@ -1,8 +1,6 @@
 <?php
 
-
 namespace PhpPmd\Pmd\Core\File;
-
 
 interface FileInterface
 {

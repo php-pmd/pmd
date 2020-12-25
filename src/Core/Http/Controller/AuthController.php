@@ -1,8 +1,6 @@
 <?php
 
-
 namespace PhpPmd\Pmd\Core\Http\Controller;
-
 
 use PhpPmd\Pmd\Core\Http\Exception\AuthException;
 use Psr\Http\Message\ServerRequestInterface;

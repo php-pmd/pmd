@@ -3,7 +3,7 @@
 if (!function_exists('logger')) {
     /**
      * @return \PhpPmd\Pmd\Core\Log\LoggerInterface
-     * @throws \PhpPmd\Pmd\Core\Di\NotFoundException
+     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
      */
     function logger()
     {
@@ -14,7 +14,7 @@ if (!function_exists('logger')) {
 if (!function_exists('loop')) {
     /**
      * @return \React\EventLoop\LoopInterface
-     * @throws \PhpPmd\Pmd\Core\Di\NotFoundException
+     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
      */
     function loop()
     {
@@ -25,7 +25,7 @@ if (!function_exists('loop')) {
 if (!function_exists('http')) {
     /**
      * @return \PhpPmd\Pmd\Core\Http\Server
-     * @throws \PhpPmd\Pmd\Core\Di\NotFoundException
+     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
      */
     function http()
     {
@@ -36,7 +36,7 @@ if (!function_exists('http')) {
 if (!function_exists('pidFile')) {
     /**
      * @return \PhpPmd\Pmd\Core\File\PidFile
-     * @throws \PhpPmd\Pmd\Core\Di\NotFoundException
+     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
      */
     function pidFile()
     {
@@ -47,7 +47,7 @@ if (!function_exists('pidFile')) {
 if (!function_exists('processFile')) {
     /**
      * @return \PhpPmd\Pmd\Core\File\ProcessFile
-     * @throws \PhpPmd\Pmd\Core\Di\NotFoundException
+     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
      */
     function processFile()
     {
