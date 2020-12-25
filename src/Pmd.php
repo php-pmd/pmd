@@ -79,9 +79,8 @@ class Pmd
         \set_error_handler(function ($code, $msg, $file, $line) {
             \logger()->error("$msg in file $file on line $line");
         });
-        \set_exception_handler(function ($code, $msg, $file, $line) {
-            echo "$msg in file $file on line $line";
-            \logger()->error("$msg in file $file on line $line");
+        \set_exception_handler(function (\Throwable $throwable) {
+            \logger()->error("{$throwable->getMessage()} in file {$throwable->getFile()} on line {$throwable->getLine()}");
             exit(0);
         });
     }
@@ -308,7 +307,7 @@ class Pmd
         if (!isset($config['pass']) || $config['pass'] == null || !$passRegx($config['pass'])) {
             $config['pass'] = static::getStdinValue(
                 'Please enter the manager password <g>(123456)</g>:',
-                '123456',
+                123456,
                 $passRegx
             );
         }

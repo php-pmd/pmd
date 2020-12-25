@@ -6,9 +6,13 @@ use React\Http\Message\Response;
 
 final class HtmlResponse
 {
-    private static function response(int $statusCode, $data = null): Response
+    private static function response(int $statusCode, $data = null, $responseHeader = []): Response
     {
-        return new Response($statusCode, ['Content-Type' => 'text/html'], $data);
+        $responseHeader = array_merge(
+            ['Content-Type' => 'text/html'],
+            $responseHeader
+        );
+        return new Response($statusCode, $responseHeader, $data);
     }
 
     public static function ok($data): Response
@@ -43,6 +47,14 @@ final class HtmlResponse
 
     public static function unauthorized(): Response
     {
-        return self::response(401, '401 Unauthorized');
+        return self::response(401, '<head>
+<title>Error response</title>
+</head>
+<body>
+<h1>Error response</h1>
+<p>Error code 401.
+<p>Message: Unauthorized.
+</body>
+', ['WWW-Authenticate' => ' Basic realm="default"']);
     }
 }

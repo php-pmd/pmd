@@ -8,6 +8,6 @@ class LoginController extends BaseController
 {
     public function signIn(ServerRequestInterface $request)
     {
-        return $this->view('signin.html',['name'=>"PMD"]);
+        return $this->view('signin.html', ['name' => "PMD"]);
     }
 }

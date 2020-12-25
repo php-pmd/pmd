@@ -2,6 +2,7 @@
 
 namespace PhpPmd\Pmd\Core\Http;
 
+use PhpPmd\Pmd\Core\Http\Exception\AuthException;
 use PhpPmd\Pmd\Core\Http\Response\HtmlResponse;
 use PhpPmd\Pmd\Core\Http\Response\JsonResponse;
 use PhpPmd\Pmd\Core\Http\Response\TextResponse;
@@ -14,12 +15,12 @@ class Route
 
     public static function get($uri, $callback)
     {
-        static::addRoute('get', $uri, $callback);
+        static::addRoute('GET', $uri, $callback);
     }
 
     public static function post($uri, $callback)
     {
-        static::addRoute('post', $uri, $callback);
+        static::addRoute('POST', $uri, $callback);
     }
 
     public static function addRoute($method, $uri, $callback)
@@ -33,11 +34,7 @@ class Route
                 $callback = explode('@', $callback);
                 if (isset($callback[0], $callback[1]) && count($callback) == 2) {
                     if (class_exists($callback[0])) {
-                        if (method_exists(new $callback[0], $callback[1])) {
-                            static::$routes[$method][$uri] = [new $callback[0], $callback[1]];
-                        } else {
-                            trigger_error('The ' . $callback[1] . ' method does not exist in the ' . $callback[0] . 'class.');
-                        }
+                        static::$routes[$method][$uri] = [$callback[0], $callback[1]];
                     } else {
                         trigger_error($callback[0] . ' class does not exist.');
                     }
@@ -56,7 +53,10 @@ class Route
     {
         if (isset(static::$routes[$request->getMethod()][$request->getUri()->getPath()])) {
             try {
-                return call_user_func(static::$routes[$request->getMethod()][$request->getUri()->getPath()], $request);
+                $callback = static::$routes[$request->getMethod()][$request->getUri()->getPath()];
+                return call_user_func([new $callback[0]($request), $callback[1]], $request);
+            } catch (AuthException $authException) {
+                return HtmlResponse::unauthorized();
             } catch (\Throwable $throwable) {
                 $msg = "{$throwable->getMessage()} in file {$throwable->getFile()} on line {$throwable->getLine()}";
                 trigger_error($msg);

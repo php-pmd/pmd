@@ -4,7 +4,7 @@
 namespace PhpPmd\Pmd\Core\Http\Controller;
 
 
-class BaseController
+class BaseController extends AuthController
 {
     public function view($template, $data = [])
     {
