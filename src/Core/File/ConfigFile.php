@@ -4,15 +4,8 @@ namespace PhpPmd\Pmd\Core\File;
 
 use Symfony\Component\Yaml\Yaml;
 
-class ConfigFile implements FileInterface
+class ConfigFile extends AbstractFile
 {
-    protected $file;
-
-    public function __construct($file)
-    {
-        $this->file = $file;
-        if (!file_exists($this->file)) \touch($this->file);
-    }
 
     public function getContent()
     {

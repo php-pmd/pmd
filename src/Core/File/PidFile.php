@@ -2,16 +2,8 @@
 
 namespace PhpPmd\Pmd\Core\File;
 
-class PidFile implements FileInterface
+class PidFile extends AbstractFile
 {
-    protected $file;
-
-    public function __construct($file)
-    {
-        $this->file = $file;
-        if (!file_exists($this->file)) \touch($this->file);
-    }
-
     public function getContent()
     {
         $pid = \file_get_contents($this->file);

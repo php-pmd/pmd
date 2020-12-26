@@ -24,12 +24,34 @@ if (!function_exists('loop')) {
 
 if (!function_exists('http')) {
     /**
-     * @return \PhpPmd\Pmd\Core\Http\Server
+     * @return \React\Http\Server
      * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
      */
     function http()
     {
         return PhpPmd\Pmd\Pmd::$container->get('http');
+    }
+}
+
+if (!function_exists('socket')) {
+    /**
+     * @return \PhpPmd\Pmd\Core\Socket\SocketInterface
+     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
+     */
+    function socket()
+    {
+        return PhpPmd\Pmd\Pmd::$container->get('socket');
+    }
+}
+
+if (!function_exists('process')) {
+    /**
+     * @return \PhpPmd\Pmd\Core\Process\ProcessInterface
+     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
+     */
+    function process()
+    {
+        return PhpPmd\Pmd\Pmd::$container->get('process');
     }
 }
 
