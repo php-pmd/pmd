@@ -10,7 +10,6 @@ use PhpPmd\Pmd\Core\File\ConfigFile;
 use PhpPmd\Pmd\Core\File\ProcessFile;
 use PhpPmd\Pmd\Core\Http\Template;
 use PhpPmd\Pmd\Core\Http\HttpServer;
-use PhpPmd\Pmd\Core\Process\Process as ProcessServer;
 use PhpPmd\Pmd\Core\Log\Logger;
 use PhpPmd\Pmd\Core\Socket\SocketServer;
 use React\EventLoop\Factory;
@@ -247,7 +246,8 @@ class Pmd
     protected static function startSocketServer()
     {
         static::injection('socket', function () {
-            return (new SocketServer(12021))->server();
+            $config = \configFile()->getContent();
+            return new SocketServer((int)($config['port'] ?? 2021) + 1);
         });
         \socket();
     }

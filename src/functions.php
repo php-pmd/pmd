@@ -44,17 +44,6 @@ if (!function_exists('socket')) {
     }
 }
 
-if (!function_exists('process')) {
-    /**
-     * @return \PhpPmd\Pmd\Core\Process\ProcessInterface
-     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
-     */
-    function process()
-    {
-        return PhpPmd\Pmd\Pmd::$container->get('process');
-    }
-}
-
 if (!function_exists('pidFile')) {
     /**
      * @return \PhpPmd\Pmd\Core\File\PidFile

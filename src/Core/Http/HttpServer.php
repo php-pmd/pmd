@@ -22,7 +22,7 @@ class HttpServer
             return Route::dispatch($request);
         });
         $httpServer->listen(new SocketServer("0.0.0.0:{$this->port}", \loop()));
-        \logger()->writeln(" Http   server run on port <g>{$this->port}</g> .");
+        \logger()->writeln(" HTTP server run on port <g>{$this->port}</g>.");
         return $httpServer;
     }
 }

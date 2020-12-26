@@ -8,8 +8,6 @@ class IndexController extends BaseController
 {
     public function index(ServerRequestInterface $request)
     {
-        process()->create();
-        process()->list();
         return $this->view('index.html', ['name' => "PMD"]);
     }
 }

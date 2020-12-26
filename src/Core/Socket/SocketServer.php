@@ -16,10 +16,6 @@ class SocketServer extends AbstractSocket
     {
         $this->port = $port;
         $this->process = new Process(\processFile()->getContent());
-    }
-
-    public function server()
-    {
         $socket = new Server("0.0.0.0:{$this->port}", \loop());
         $socket->on('connection', function (ConnectionInterface $connection) {
             $connection->write("connection.\n");
@@ -27,6 +23,6 @@ class SocketServer extends AbstractSocket
                 $connection->write("{$data}\n");
             });
         });
-        \logger()->writeln(" Socket server run on port <g>{$this->port}</g>.");
+        \logger()->writeln(" TCP  server run on port <g>{$this->port}</g>.");
     }
 }
