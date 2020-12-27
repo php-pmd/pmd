@@ -247,7 +247,19 @@ class Pmd
     {
         static::injection('socket', function () {
             $config = \configFile()->getContent();
-            return new SocketServer((int)($config['port'] ?? 2021) + 1);
+            if (isset($config['socket']['port'])) {
+                $socket_port = $config['socket']['port'];
+            } else {
+                $socket_port = $config['http']['port'] ?? 2021;
+                $socket_port += 1;
+                $config['socket'] = [
+                    'app_key' => \uuid('key-'),
+                    'app_secret' => uuid('secret-'),
+                    'port' => $socket_port,
+                ];
+                \configFile()->setContent($config);
+            }
+            return new SocketServer((int)$socket_port);
         });
         \socket();
     }
@@ -260,7 +272,8 @@ class Pmd
             });
             static::injection('http', function () {
                 $config = \configFile()->getContent();
-                return (new HttpServer($config['port']))->server();
+                $http_port = $config['http']['port'] ?? 2021;
+                return (new HttpServer($http_port))->server();
             });
             \http();
         }
@@ -308,16 +321,17 @@ class Pmd
         );
         if (static::$http_enable) {
             $config = \configFile()->getContent();
-            foreach ($config as $key => $value) {
-                $config[$key] = $options[$key] ?? $value;
+            $http_config = $config['http'] ?? [];
+            foreach ($http_config as $key => $value) {
+                $http_config[$key] = $options[$key] ?? $value;
             }
             $userRegx = function ($value) {
                 $result = preg_match('/^[a-zA-Z]{4,16}$/', $value);
                 if (!$result) \logger()->writeln("The manager account must be <g>4-16</g> letters.");
                 return $result;
             };
-            if (!isset($config['user']) || $config['user'] == null || !$userRegx($config['user'])) {
-                $config['user'] = static::getStdinValue(
+            if (!isset($http_config['user']) || $http_config['user'] == null || !$userRegx($http_config['user'])) {
+                $http_config['user'] = static::getStdinValue(
                     'Please enter the manager account <g>(user)</g>:',
                     'user',
                     $userRegx
@@ -328,8 +342,8 @@ class Pmd
                 if (!$result) \logger()->writeln("The manager password must start with a letter, <g>6-16</g> letters or numbers.");
                 return $result;
             };
-            if (!isset($config['pass']) || $config['pass'] == null || !$passRegx($config['pass'])) {
-                $config['pass'] = static::getStdinValue(
+            if (!isset($http_config['pass']) || $http_config['pass'] == null || !$passRegx($http_config['pass'])) {
+                $http_config['pass'] = static::getStdinValue(
                     'Please enter the manager password <g>(123456)</g>:',
                     123456,
                     $passRegx
@@ -340,13 +354,14 @@ class Pmd
                 if (!$result) \logger()->writeln("The HTTP service port must be between <g>1024</g> and <g>65535</g>.");
                 return $result;
             };
-            if (!isset($config['port']) || $config['port'] == null || !$portRegx($config['port'])) {
-                $config['port'] = static::getStdinValue(
+            if (!isset($http_config['port']) || $http_config['port'] == null || !$portRegx($http_config['port'])) {
+                $http_config['port'] = static::getStdinValue(
                     'Please enter the HTTP service port <g>(2021)</g>:',
                     2021,
                     $portRegx
                 );
             }
+            $config['http'] = $http_config;
             \configFile()->setContent($config);
         }
     }

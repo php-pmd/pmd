@@ -12,7 +12,7 @@ class AuthController
         $auth = $request->getHeaderLine('Authorization');
         if ($auth) {
             $config = \configFile()->getContent();
-            if (base64_encode("{$config['user']}:{$config['pass']}") != str_replace('Basic ', '', $auth)) {
+            if ($auth != 'Basic ' . base64_encode("{$config['http']['user']}:{$config['http']['pass']}")) {
                 throw new AuthException();
             }
         } else {

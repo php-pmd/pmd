@@ -18,11 +18,23 @@ class SocketServer extends AbstractSocket
         $this->process = new Process(\processFile()->getContent());
         $socket = new Server("0.0.0.0:{$this->port}", \loop());
         $socket->on('connection', function (ConnectionInterface $connection) {
-            $connection->write("connection.\n");
+            //$connection->end("connection.\n");
             $connection->on('data', function ($data) use ($connection) {
                 $connection->write("{$data}\n");
+                $connection->end("server close.");
+            });
+            $connection->on('end', function () {
+                echo 'ended';
+            });
+
+            $connection->on('error', function (\Exception $e) {
+                echo 'error: ' . $e->getMessage();
+            });
+
+            $connection->on('close', function () {
+                echo 'closed';
             });
         });
-        \logger()->writeln(" TCP  server run on port <g>{$this->port}</g>.");
+        \logger()->writeln(" TCP  server listening on port <g>{$this->port}</g>.");
     }
 }
