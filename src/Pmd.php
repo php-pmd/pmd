@@ -3,15 +3,15 @@
 namespace PhpPmd\Pmd;
 
 use Exception;
-use PhpPmd\Pmd\Core\Command;
-use PhpPmd\Pmd\Core\Di\Container;
-use PhpPmd\Pmd\Core\File\PidFile;
-use PhpPmd\Pmd\Core\File\ConfigFile;
-use PhpPmd\Pmd\Core\File\ProcessFile;
-use PhpPmd\Pmd\Core\Http\Template;
-use PhpPmd\Pmd\Core\Http\HttpServer;
-use PhpPmd\Pmd\Core\Log\Logger;
-use PhpPmd\Pmd\Core\Socket\SocketServer;
+use PhpPmd\Pmd\Command;
+use PhpPmd\Pmd\Di\Container;
+use PhpPmd\Pmd\File\PidFile;
+use PhpPmd\Pmd\File\ConfigFile;
+use PhpPmd\Pmd\File\ProcessFile;
+use PhpPmd\Pmd\Http\Template;
+use PhpPmd\Pmd\Http\HttpServer;
+use PhpPmd\Pmd\Log\Logger;
+use PhpPmd\Pmd\Socket\SocketServer;
 use React\EventLoop\Factory;
 
 /**

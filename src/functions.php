@@ -2,8 +2,8 @@
 
 if (!function_exists('logger')) {
     /**
-     * @return \PhpPmd\Pmd\Core\Log\LoggerInterface
-     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
+     * @return \PhpPmd\Pmd\Log\LoggerInterface
+     * @throws \PhpPmd\Pmd\Di\Exception\NotFoundException
      */
     function logger()
     {
@@ -14,7 +14,7 @@ if (!function_exists('logger')) {
 if (!function_exists('loop')) {
     /**
      * @return \React\EventLoop\LoopInterface
-     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
+     * @throws \PhpPmd\Pmd\Di\Exception\NotFoundException
      */
     function loop()
     {
@@ -25,7 +25,7 @@ if (!function_exists('loop')) {
 if (!function_exists('http')) {
     /**
      * @return \React\Http\Server
-     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
+     * @throws \PhpPmd\Pmd\Di\Exception\NotFoundException
      */
     function http()
     {
@@ -35,8 +35,8 @@ if (!function_exists('http')) {
 
 if (!function_exists('socket')) {
     /**
-     * @return \PhpPmd\Pmd\Core\Socket\SocketInterface
-     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
+     * @return \PhpPmd\Pmd\Socket\SocketInterface
+     * @throws \PhpPmd\Pmd\Di\Exception\NotFoundException
      */
     function socket()
     {
@@ -46,8 +46,8 @@ if (!function_exists('socket')) {
 
 if (!function_exists('pidFile')) {
     /**
-     * @return \PhpPmd\Pmd\Core\File\PidFile
-     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
+     * @return \PhpPmd\Pmd\File\PidFile
+     * @throws \PhpPmd\Pmd\Di\Exception\NotFoundException
      */
     function pidFile()
     {
@@ -57,8 +57,8 @@ if (!function_exists('pidFile')) {
 
 if (!function_exists('processFile')) {
     /**
-     * @return \PhpPmd\Pmd\Core\File\ProcessFile
-     * @throws \PhpPmd\Pmd\Core\Di\Exception\NotFoundException
+     * @return \PhpPmd\Pmd\File\ProcessFile
+     * @throws \PhpPmd\Pmd\Di\Exception\NotFoundException
      */
     function processFile()
     {
@@ -68,7 +68,7 @@ if (!function_exists('processFile')) {
 
 if (!function_exists('configFile')) {
     /**
-     * @return \PhpPmd\Pmd\Core\File\ConfigFile
+     * @return \PhpPmd\Pmd\File\ConfigFile
      */
     function configFile()
     {
@@ -78,7 +78,7 @@ if (!function_exists('configFile')) {
 
 if (!function_exists('view')) {
     /**
-     * @return \PhpPmd\Pmd\Core\Http\Template
+     * @return \PhpPmd\Pmd\Http\Template
      */
     function view()
     {
