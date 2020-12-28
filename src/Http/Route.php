@@ -55,13 +55,9 @@ class Route
         if (isset(static::$routes[$request->getMethod()][$request->getUri()->getPath()])) {
             try {
                 $callback = static::$routes[$request->getMethod()][$request->getUri()->getPath()];
-                try {
-                    $class = new $callback[0]($request);
-                    $method = $callback[1];
-                    return $class->$method($request);
-                } catch (\Throwable $error) {
-                    return JsonResponse::badRequest([$error->getMessage()]);
-                }
+                $class = new $callback[0]($request);
+                $method = $callback[1];
+                return $class->$method($request);
             } catch (AuthException $authException) {
                 return HtmlResponse::unauthorized();
             } catch (\Throwable $throwable) {
