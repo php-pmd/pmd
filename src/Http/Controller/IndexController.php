@@ -2,12 +2,14 @@
 
 namespace PhpPmd\Pmd\Http\Controller;
 
+use PhpPmd\Pmd\Http\Business\ProcessBusiness;
 use Psr\Http\Message\ServerRequestInterface;
 
 class IndexController extends BaseController
 {
     public function index(ServerRequestInterface $request)
     {
-        return $this->view('index.html', ['name' => "PMD"]);
+        $processBusiness = new ProcessBusiness();
+        return $processBusiness->getList();
     }
 }

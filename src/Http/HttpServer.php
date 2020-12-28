@@ -2,9 +2,12 @@
 
 namespace PhpPmd\Pmd\Http;
 
+use React\Http\Message\Response;
 use React\Http\Server;
+use React\Promise\Promise;
 use React\Socket\Server as SocketServer;
 use Psr\Http\Message\ServerRequestInterface;
+use function React\Promise\resolve;
 
 class HttpServer
 {

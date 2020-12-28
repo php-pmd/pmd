@@ -8,6 +8,7 @@ use PhpPmd\Pmd\Http\Response\JsonResponse;
 use PhpPmd\Pmd\Http\Response\TextResponse;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Message\Response;
+use function React\Promise\resolve;
 
 class Route
 {
@@ -49,12 +50,18 @@ class Route
         }
     }
 
-    public static function dispatch(ServerRequestInterface $request): Response
+    public static function dispatch(ServerRequestInterface $request)
     {
         if (isset(static::$routes[$request->getMethod()][$request->getUri()->getPath()])) {
             try {
                 $callback = static::$routes[$request->getMethod()][$request->getUri()->getPath()];
-                return call_user_func([new $callback[0]($request), $callback[1]], $request);
+                try {
+                    $class = new $callback[0]($request);
+                    $method = $callback[1];
+                    return $class->$method($request);
+                } catch (\Throwable $error) {
+                    return JsonResponse::badRequest([$error->getMessage()]);
+                }
             } catch (AuthException $authException) {
                 return HtmlResponse::unauthorized();
             } catch (\Throwable $throwable) {

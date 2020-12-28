@@ -253,10 +253,12 @@ class Pmd
                 $socket_port = $config['http']['port'] ?? 2021;
                 $socket_port += 1;
                 $config['socket'] = [
-                    'app_key' => \uuid('key-'),
-                    'app_secret' => uuid('secret-'),
+                    'ip' => '127.0.0.1',
                     'port' => $socket_port,
+                    'app_key' => \uuid('k-'),
+                    'app_secret' => uuid('s-'),
                 ];
+                $config['remote_socket']["127.0.0.1:{$socket_port}"] = $config['socket'];
                 \configFile()->setContent($config);
             }
             return new SocketServer((int)$socket_port);
