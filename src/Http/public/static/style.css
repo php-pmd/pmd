@@ -68,11 +68,45 @@ html, body {
     height: 100%;
 }
 
+/* 大屏幕 ：大于等于1200px*/
+@media (min-width: 1200px) {
+    #footer, #wrapper {
+        width: 60%;
+    }
+}
+
+/*默认*/
+@media (min-width: 980px) and (max-width: 1199px) {
+    #footer, #wrapper {
+        width: 80%;
+    }
+}
+
+/* 平板电脑和小屏电脑之间的分辨率 */
+@media (min-width: 768px) and (max-width: 979px) {
+    #footer, #wrapper {
+        width: 90%;
+    }
+}
+
+/* 横向放置的手机和竖向放置的平板之间的分辨率 */
+@media (max-width: 767px) {
+    #footer, #wrapper {
+        width: 100%;
+    }
+}
+
+/* 横向放置的手机及分辨率更小的设备 */
+@media (max-width: 480px) {
+    #footer, #wrapper {
+        width: 100%;
+    }
+}
+
 #wrapper {
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    width: 80%;
     margin: 0 auto -31px;
 }
 
@@ -86,7 +120,7 @@ html, body {
 }
 
 #header {
-    padding: 10px 0 13px 0;
+    padding: 20px 0 30px 0;
 }
 
 .status_msg {
@@ -200,7 +234,6 @@ tr.shade td {
 }
 
 #footer {
-    width: 80%;
     margin: 0 auto;
     padding: 0 10px;
     line-height: 30px;
@@ -269,15 +302,16 @@ tr.shade td {
     width: 10%;
 }
 
-select{
+select {
     border-left: #ffffff 2px solid;
     border-right: #000000 2px solid;
     border-top: #ffffff 2px solid;
     border-bottom: #000000 2px solid;
-    font-size: 14px;
-    color:#000000;
+    font-size: 17px;
+    color: #000000;
     background-color: #efefef;
 }
+
 select:focus {
     border-color: #000000;
     outline: 0;

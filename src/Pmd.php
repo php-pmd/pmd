@@ -270,7 +270,7 @@ class Pmd
     {
         if (static::$http_enable) {
             static::injection('view', function () {
-                return new Template();
+                return new Template(PMD_ROOT . '/Http/view/', ['site_title' => 'PMD Console', 'version' => self::$version]);
             });
             static::injection('http', function () {
                 $config = \configFile()->getContent();

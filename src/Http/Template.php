@@ -6,7 +6,15 @@ use PhpPmd\Pmd\Http\Response\HtmlResponse;
 
 class Template
 {
-    private $templatePath = __DIR__ . '/view/';
+    protected $templatePath;
+
+    protected $data;
+
+    public function __construct($templatePath, $data)
+    {
+        $this->templatePath = $templatePath;
+        $this->data = $data;
+    }
 
     /**
      * @param $template
@@ -15,6 +23,7 @@ class Template
     public function display($template, $data)
     {
         if (file_exists($this->templatePath . $template)) {
+            $data = array_merge($this->data, $data);
             if (!empty($data)) extract($data);
             ob_start();
             include($this->templatePath . $template);

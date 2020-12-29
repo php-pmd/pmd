@@ -11,6 +11,13 @@ use function React\Promise\Stream\first;
 class SocketBusiness
 {
 
+    /**
+     * @param $remoteAddress
+     * @param $data
+     * @param $callback
+     * @return \React\Promise\ExtendedPromiseInterface|\React\Promise\Promise|\React\Promise\PromiseInterface
+     * @throws \PhpPmd\Pmd\Di\Exception\NotFoundException
+     */
     protected function send($remoteAddress, $data, $callback)
     {
         return RemoteSocketConnector::connector($remoteAddress)
@@ -24,5 +31,13 @@ class SocketBusiness
                 RemoteSocketConnector::getConnector($remoteAddress)['live_state'] = 0;
                 return $callback(['error' => $reason->getMessage()]);
             });
+    }
+
+    /**
+     * @return array|mixed
+     */
+    public function getSocketList()
+    {
+        return RemoteSocketConnector::getConnector();
     }
 }
