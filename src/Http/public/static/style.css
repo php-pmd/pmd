@@ -147,21 +147,18 @@ th.desc {
 th.processnum {
     width: 10%;
     max-width: 10%;
-}
-
-th.processmanage {
-    width: 10%;
-    max-width: 10%;
+    text-align: center;
 }
 
 th.state {
     width: 10%;
     max-width: 10%;
+    text-align: center;
 }
 
 th.action {
-    width: 30%;
-    max-width: 30%;
+    width: 40%;
+    max-width: 40%;
 }
 
 td, th {
@@ -187,14 +184,19 @@ tr.shade td {
     display: inline;
 }
 
-.status span {
+.processnum span {
     display: block;
-    width: 60px;
-    height: 16px;
-    border: 1px solid #fff;
+    text-align: center;
+}
+
+.status span {
+    color: white;
+    display: block;
+    height: 20px;
+    border: 2px solid #c3c3c3;
     text-align: center;
     font-size: 95%;
-    line-height: 1.4em;
+    line-height: 20px;
 }
 
 #footer {
@@ -212,17 +214,73 @@ tr.shade td {
 }
 
 .statusnominal {
-    background-color: #eff08b;
+    background-color: #808080;
 }
 
 .statusrunning {
-    background-color: #8fe384;
+    background-color: #5ddc4d;
 }
 
 .statuserror {
-    background-color: #e59296;
+    background-color: #ec696f;
 }
 
 #footer a {
     font-size: inherit;
+}
+
+[v-cloak] {
+    display: none !important;
+}
+
+.input-text {
+    text-align: center;
+    border-right: #ffffff 0 solid;
+    border-top: #ffffff 0 solid;
+    border-left: #ffffff 0 solid;
+    border-bottom: #c0c0c0 2px solid;
+    font-size: 9pt;
+    background-color: #ffffff;
+    display: block;
+    width: 100%;
+    height: 18px;
+    padding: 6px 0;
+}
+
+.input-text:focus {
+    border-color: #c0c0c0;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(192, 192, 192, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(192, 192, 192, 0.6);
+}
+
+.addprocess tr .name {
+    text-align: center;
+    width: 20%;
+}
+
+.addprocess tr .cmd {
+    text-align: center;
+    width: 30%;
+}
+
+.addprocess tr .number {
+    text-align: center;
+    width: 10%;
+}
+
+select{
+    border-left: #ffffff 2px solid;
+    border-right: #000000 2px solid;
+    border-top: #ffffff 2px solid;
+    border-bottom: #000000 2px solid;
+    font-size: 14px;
+    color:#000000;
+    background-color: #efefef;
+}
+select:focus {
+    border-color: #000000;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(192, 192, 192, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(192, 192, 192, 0.6);
 }

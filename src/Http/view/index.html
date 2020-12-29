@@ -6,19 +6,17 @@
     <meta name="viewport" content="user-scalable=0">
     <link rel="icon" type="image/png" href="/static/logo_mini.png">
     <meta http-equiv="Cache-Control" content="max-age=86400"/>
-    <!-- main page styles -->
     <link rel="stylesheet" href="/static/style.css">
-    <!-- this needs to be loaded before guide's inline scripts -->
     <script src="/static/vue-v2.6.11.js"></script>
 </head>
 <body>
-<div id="wrapper">
+<div id="wrapper" v-cloak>
     <div id="header">
         <span><h1>PMD Console</h1></span>
     </div>
     <hr>
     <div>
-        <div class="status_msg">Process workerman restarted</div>
+        <div class="status_msg" v-if="message != ''">{{message}}</div>
         <ul class="clr" id="buttons">
             <div class="left">
                 <li id="refresh"><a href="index.html?action=refresh">
@@ -32,9 +30,15 @@
                 </a></li>
             </div>
             <div class="right">
-                <li id="add"><a href="index.html?action=add">
-                    <button>添加</button>
-                </a></li>
+                <li>
+                    <select>
+                        <option>127.0.0.1:2022(local)</option>
+                        <option>1</option>
+                        <option>1</option>
+                        <option>1</option>
+                        <option>1</option>
+                    </select>
+                </li>
                 <li id="set"><a href="index.html?action=add">
                     <button>设置</button>
                 </a></li>
@@ -46,7 +50,6 @@
                 <th class="name">名称</th>
                 <th class="desc">描述</th>
                 <th class="processnum">进程数</th>
-                <th class="processmanage">进程增减</th>
                 <th class="state">状态</th>
                 <th class="action">操作</th>
             </tr>
@@ -55,17 +58,7 @@
             <tr class="">
                 <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
                 <td><span>pid 138, 运行时长 0:00:38</span></td>
-                <td>1/4</td>
-                <td class="action">
-                    <ul>
-                        <li>
-                            <a href="logtail/workerman" name="Tail -f" target="_blank">增</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Tail -f" target="_blank">减</a>
-                        </li>
-                    </ul>
-                </td>
+                <td class="processnum"><span>10</span></td>
                 <td class="status"><span class="statusrunning">运行中</span></td>
                 <td class="action">
                     <ul>
@@ -87,8 +80,7 @@
             <tr class="">
                 <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
                 <td><span>Dec 25 02:34 PM</span></td>
-                <td>0/4</td>
-                <td class="action"></td>
+                <td class="processnum"><span>0</span></td>
                 <td class="status"><span class="statusnominal">已停止</span></td>
                 <td class="action">
                     <ul>
@@ -110,8 +102,7 @@
             <tr class="">
                 <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
                 <td><span>Dec 25 02:34 PM</span></td>
-                <td>0/4</td>
-                <td class="action"></td>
+                <td class="processnum"><span>0</span></td>
                 <td class="status"><span class="statuserror">异常</span></td>
                 <td class="action">
                     <ul>
@@ -132,8 +123,37 @@
             </tr>
             </tbody>
         </table>
-    </div>
-    <div class="push">
+        <hr>
+        <table class="addprocess">
+            <tr>
+                <td class="name">
+                    名称
+                </td>
+                <td class="cmd">命令</td>
+                <td class="number">进程数</td>
+                <td>自启</td>
+                <td>操作</td>
+            </tr>
+            <tr>
+                <td class="name">
+                    <input type="text" class="input-text" onkeyup="value=value.replace(/[^\w]/ig,'')" maxlength=32
+                           value="HelloPmd">
+                </td>
+                <td class="cmd">
+                    <input type="text" class="input-text" onkeyup="value=value.replace(/[^\w\.\/\s\']/ig,'')"
+                           maxlength=128 value="echo 'Hello PMD'"/></td>
+                <td class="number">
+                    <input class="input-text" onkeyup="this.value=this.value.replace(/\D/g,'')"
+                           onchange="this.value=this.value.replace(/\D/g,'')" value="4" maxlength="2"></td>
+                <td>
+                    <input type="radio" name="startauto" checked value="1"/>开
+                    <input type="radio" name="startauto" value="0"/>关
+                </td>
+                <td>
+                    <button>添加</button>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 <div class="clr" id="footer">
@@ -145,5 +165,6 @@
             reserved</strong>
     </div>
 </div>
+<script src="/static/page.js"></script>
 </body>
 </html>
