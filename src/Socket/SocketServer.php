@@ -11,7 +11,7 @@ class SocketServer extends AbstractSocket
 {
     protected $process;
 
-    protected $connections;
+    protected $connections = [];
 
     public function __construct($port)
     {

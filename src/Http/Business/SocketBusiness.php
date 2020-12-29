@@ -3,6 +3,7 @@
 namespace PhpPmd\Pmd\Http\Business;
 
 use PhpPmd\Pmd\Http\RemoteSocketConnector;
+use PhpPmd\Pmd\Http\Response\JsonResponse;
 use PhpPmd\Pmd\Socket\Protocols\JsonNL;
 use React\Socket\ConnectionInterface;
 use function React\Promise\Stream\first;
@@ -18,8 +19,10 @@ class SocketBusiness
                 return first($connection)->then(function ($data) use ($callback) {
                     return $callback(JsonNL::decode($data));
                 });
-            })->otherwise(function ($reason) {
-                return JsonNL::decode($reason->getMessage());
+            })->otherwise(function ($reason) use ($remoteAddress, $callback) {
+                \logger()->error($reason->getMessage());
+                RemoteSocketConnector::getConnector($remoteAddress)['live_state'] = 0;
+                return $callback(['error' => $reason->getMessage()]);
             });
     }
 }

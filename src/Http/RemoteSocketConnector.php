@@ -61,10 +61,11 @@ class RemoteSocketConnector
     }
 
     /**
-     * @return mixed
+     * @param null $remoteAddress
+     * @return array|mixed
      */
-    public static function getConnector()
+    public static function getConnector($remoteAddress = null)
     {
-        return static::$remoteSocketConnector;
+        return $remoteAddress ? static::$remoteSocketConnector[$remoteAddress] : static::$remoteSocketConnector;
     }
 }
