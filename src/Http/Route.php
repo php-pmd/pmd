@@ -3,6 +3,8 @@
 namespace PhpPmd\Pmd\Http;
 
 use PhpPmd\Pmd\Http\Exception\AuthException;
+use PhpPmd\Pmd\Http\MimeTypes\MimeTypesList;
+use PhpPmd\Pmd\Http\Response\FileResponse;
 use PhpPmd\Pmd\Http\Response\HtmlResponse;
 use PhpPmd\Pmd\Http\Response\JsonResponse;
 use PhpPmd\Pmd\Http\Response\TextResponse;
@@ -75,8 +77,21 @@ class Route
                     return HtmlResponse::internalServerError($msg);
                 }
             }
-        } else {
-            return HtmlResponse::notFound();
+        } elseif ('GET' == $request->getMethod()) {
+            $file = PMD_ROOT . '/Http/public' . $request->getUri()->getPath();
+            if (file_exists($file) && is_file($file) && is_readable($file)) {
+                $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                if (isset(MimeTypesList::MIMES[$extension])) {
+                    return FileResponse::ok(
+                        @file_get_contents($file),
+                        [
+                            'Content-Type' => MimeTypesList::MIMES[$extension][0],
+                            "Cache-control" => "max-age=86400"
+                        ]
+                    );
+                }
+            }
         }
+        return HtmlResponse::notFound();
     }
 }
