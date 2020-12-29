@@ -25,9 +25,11 @@ class SocketServer extends AbstractSocket
     {
         $connection->on('data', function ($data) use ($connection) {
             $data = JsonNL::decode($data);
-            if (isset($data['cmd'])) {
+            if (isset($data['cmd']) && 'ping' != $data['cmd']) {
                 $result = Route::dispatch($this->process, $data['cmd'], $data['data'] ?? null);
                 $connection->write(JsonNl::encode($result));
+            } elseif ('ping' == $data['cmd']) {
+                $connection->write(JsonNl::encode(['pong' => time()]));
             }
         });
     }

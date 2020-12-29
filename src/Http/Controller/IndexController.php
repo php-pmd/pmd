@@ -10,6 +10,8 @@ class IndexController extends BaseController
     public function index(ServerRequestInterface $request)
     {
         $processBusiness = new ProcessBusiness();
-        return $processBusiness->getList();
+        return $processBusiness->getList(function ($data) {
+            return $this->view('index.html', $data);
+        });
     }
 }
