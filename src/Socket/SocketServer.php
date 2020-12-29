@@ -11,6 +11,8 @@ class SocketServer extends AbstractSocket
 {
     protected $process;
 
+    protected $connections;
+
     public function __construct($port)
     {
         $this->process = new Process(\processFile()->getContent());
@@ -18,12 +20,25 @@ class SocketServer extends AbstractSocket
         $socket->on('connection', function (ConnectionInterface $connection) {
             $this->initEvents($connection);
         });
+        \loop()->addPeriodicTimer(100, function () {
+            foreach ($this->connections as $remoteAddress => $connection) {
+                if (time() > $this->connections[$remoteAddress]['live_last_time'] + 120) {
+                    $connection->close();
+                    unset($this->connections[$remoteAddress]);
+                }
+            }
+        });
         \logger()->writeln(" TCP  server listening on port <g>{$port}</g>.");
     }
 
     private function initEvents(ConnectionInterface $connection)
     {
+        $this->connections[$connection->getRemoteAddress()] = [
+            'live_last_time' => time(),
+            'socket' => $connection
+        ];
         $connection->on('data', function ($data) use ($connection) {
+            $this->connections[$connection->getRemoteAddress()]['live_last_time'] = time();
             $data = JsonNL::decode($data);
             if (isset($data['cmd']) && 'ping' != $data['cmd']) {
                 $result = Route::dispatch($this->process, $data['cmd'], $data['data'] ?? null);

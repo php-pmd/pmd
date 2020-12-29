@@ -11,7 +11,7 @@ use function React\Promise\Stream\first;
 class RemoteSocketConnector
 {
     private static $pingTimer;
-    private static $remoteSocketConnector;
+    private static $remoteSocketConnector = [];
 
     /**
      * @param $remoteAddress
@@ -21,24 +21,33 @@ class RemoteSocketConnector
     public static function connector($remoteAddress)
     {
         if (null == static::$pingTimer) {
-            static::$pingTimer = \loop()->addPeriodicTimer(3, function () {
-                /**
-                 * @var \React\Promise\PromiseInterface $remoteSocketConnector
-                 */
-                foreach (static::$remoteSocketConnector as $remoteSocketConnector) {
-                    $remoteSocketConnector->then(function (ConnectionInterface $connection) {
+            static::$pingTimer = \loop()->addPeriodicTimer(30, function () {
+                foreach (static::$remoteSocketConnector as $remoteAddress => $remoteSocketConnector) {
+                    $remoteSocketConnector['socket']->then(function (ConnectionInterface $connection) use ($remoteAddress) {
                         $connection->write(JsonNL::encode(['cmd' => 'ping']));
-                        first($connection)->then(function ($data) {
-                            var_dump($data);
+                        first($connection)->then(function ($data) use ($remoteAddress) {
+                            $data = JsonNL::decode($data);
+                            if (isset($data['pong'])) static::$remoteSocketConnector[$remoteAddress]['live_last_time'] = $data['pong'];
                         });
                     });
                 }
             });
+            \loop()->addPeriodicTimer(50, function () {
+                foreach (static::$remoteSocketConnector as $remoteAddress => $remoteSocketConnector) {
+                    if (time() > static::$remoteSocketConnector[$remoteAddress]['live_last_time'] + 120) {
+                        static::$remoteSocketConnector[$remoteAddress]['live_last_time'] = 0;
+                    }
+                }
+            });
         }
         if (!isset(static::$remoteSocketConnector[$remoteAddress])) {
-            static::$remoteSocketConnector[$remoteAddress] = static::connect($remoteAddress);
+            static::$remoteSocketConnector[$remoteAddress] = [
+                'live_state' => 1,
+                'live_last_time' => time(),
+                'socket' => static::connect($remoteAddress)
+            ];
         }
-        return static::$remoteSocketConnector[$remoteAddress];
+        return static::$remoteSocketConnector[$remoteAddress]['socket'];
     }
 
     /**
@@ -49,5 +58,13 @@ class RemoteSocketConnector
     protected static function connect($remoteAddress)
     {
         return (new TimeoutConnector(new TcpConnector(\loop()), 3.0, \loop()))->connect($remoteAddress);
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function getConnector()
+    {
+        return static::$remoteSocketConnector;
     }
 }

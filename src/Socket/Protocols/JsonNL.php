@@ -9,7 +9,7 @@ class JsonNL
      */
     public static function encode(array $buffer)
     {
-        return json_encode($buffer);
+        return json_encode($buffer) . "\n";
     }
 
     /**
