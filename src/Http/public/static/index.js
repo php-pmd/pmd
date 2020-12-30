@@ -13,6 +13,21 @@ window.onload = function () {
             this.getSocketList();
         },
         methods: {
+            start: function (name) {
+                this.$http.post('/start', {
+                    name: name,
+                    address: this.address
+                }).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
+                        this.getProcessList();
+                        this.tips = response.data.data.msg;
+                    } else {
+                        this.tips = response.data.data.msg;
+                    }
+                }).catch(function (error) {
+                    console.log(error);
+                });
+            },
             selectQuery: function () {
                 window.location.href = "/?address=" + this.address;
             },
@@ -85,7 +100,7 @@ window.onload = function () {
                     }
                 }
                 var result = '';
-                if (theTime > 0) {
+                if (theTime >= 0) {
                     result = "" + parseInt(theTime) + "秒";
                 }
                 if (theTime1 > 0) {

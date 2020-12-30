@@ -9,4 +9,10 @@ class ProcessBusiness extends SocketBusiness
         $cmd = ['cmd' => 'process_list'];
         return $this->send($address, $cmd, $callback);
     }
+
+    public function start($address, $name, $callback)
+    {
+        $cmd = ['cmd' => 'start', 'data' => ['name' => $name]];
+        return $this->send($address, $cmd, $callback);
+    }
 }

@@ -9,6 +9,8 @@ interface ProcessInterface
 
     public function get(string $name);
 
+    public function start($name);
+
     public function restart(string $name);
 
     public function restartAll();

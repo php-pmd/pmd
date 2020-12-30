@@ -10,7 +10,7 @@ class ProcessController extends BaseController
 {
     public function list(ServerRequestInterface $request)
     {
-        $input = json_decode($request->getBody()->getContents(), true);
+        $input = $this->post($request);
         $address = $input['address'] ?? null;
         $processBusiness = new ProcessBusiness();
         return $processBusiness->getList($address, function ($processList) {
@@ -18,6 +18,21 @@ class ProcessController extends BaseController
                 'code' => 0,
                 'msg' => 'success',
                 'data' => $processList
+            ]);
+        });
+    }
+
+    public function start(ServerRequestInterface $request)
+    {
+        $input = $this->post($request);
+        $address = $input['address'] ?? null;
+        $name = $input['name'] ?? null;
+        $processBusiness = new ProcessBusiness();
+        return $processBusiness->start($address, $name, function ($result) {
+            return JsonResponse::ok([
+                'code' => 0,
+                'msg' => 'success',
+                'data' => $result
             ]);
         });
     }

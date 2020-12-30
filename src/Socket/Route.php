@@ -5,12 +5,14 @@ namespace PhpPmd\Pmd\Socket;
 use PhpPmd\Pmd\Process\ProcessInterface;
 use PhpPmd\Pmd\Socket\Business\ProcessList;
 use PhpPmd\Pmd\Socket\Business\Setting;
+use PhpPmd\Pmd\Socket\Business\StartProcess;
 
 class Route
 {
     public static $route = [
         'setting' => Setting::class,
-        'process_list' => ProcessList::class
+        'process_list' => ProcessList::class,
+        'start' => StartProcess::class,
     ];
 
     /**

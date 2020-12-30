@@ -4,6 +4,36 @@ namespace PhpPmd\Pmd\Process;
 
 class Process extends AbstractProcess
 {
+
+    public function start($name)
+    {
+        if (!isset($this->process[$name])) {
+            $this->process[$name] = [
+                'name' => $name,
+                'runtime' => 0,
+                'stop_time' => 0,
+                'error_msg' => '',
+                'pids' => [],
+            ];
+        }
+        try {
+            $config = \processFile()->getContent();
+            if (isset($config[$name])) {
+                $count = $config[$name]['count'] ?? 1;
+                for ($i = 0; $i < $count; $i++) {
+                    $this->createOne($name, $config[$name]);
+                }
+                return ['code' => 0, 'msg' => '启动成功'];
+            } else {
+                return ['code' => 1, 'msg' => '配置不存在'];
+            }
+        } catch (\Throwable $throwable) {
+            $this->process[$name]['error_msg'] = $throwable->getMessage();
+            trigger_error("[{$config['cmd']}] run fail.");
+            return ['code' => 1, 'msg' => $throwable->getMessage()];
+        }
+    }
+
     public function create($name, array $config)
     {
         if ($config['autostart'] ?? false) {
@@ -61,6 +91,7 @@ class Process extends AbstractProcess
                     }
                 }
                 if (count($this->process[$name]['pids']) == 0) {
+                    $this->process[$name]['pids'] = [];
                     $this->process[$name]['runtime'] = 0;
                     $this->process[$name]['stop_time'] = time();
                 }
