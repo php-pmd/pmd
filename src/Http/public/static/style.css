@@ -71,35 +71,35 @@ html, body {
 /* 大屏幕 ：大于等于1200px*/
 @media (min-width: 1200px) {
     #footer, #wrapper {
-        width: 60%;
+        width: 980px;
     }
 }
 
 /*默认*/
 @media (min-width: 980px) and (max-width: 1199px) {
     #footer, #wrapper {
-        width: 80%;
+        width: 768px;
     }
 }
 
 /* 平板电脑和小屏电脑之间的分辨率 */
 @media (min-width: 768px) and (max-width: 979px) {
     #footer, #wrapper {
-        width: 90%;
+        width: 768px;
     }
 }
 
 /* 横向放置的手机和竖向放置的平板之间的分辨率 */
 @media (max-width: 767px) {
     #footer, #wrapper {
-        width: 100%;
+        width: 95%;
     }
 }
 
 /* 横向放置的手机及分辨率更小的设备 */
 @media (max-width: 480px) {
     #footer, #wrapper {
-        width: 100%;
+        width: 95%;
     }
 }
 

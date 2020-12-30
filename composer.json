@@ -31,7 +31,8 @@
     "ext-posix": "*",
     "ext-json": "*",
     "react/http": "^1.2",
-    "symfony/yaml": "^5.2"
+    "symfony/yaml": "^5.2",
+    "react/child-process": "^0.6.1"
   },
   "bin": [
     "pmd"

@@ -16,7 +16,9 @@ class HttpServer
     public function __construct($port = 2021)
     {
         $this->port = $port;
-        Route::get('/', "Controller\\IndexController@index");
+        Route::get('/', 'Controller\\IndexController@index');
+        Route::post('/socketList', 'Controller\\SocketController@list');
+        Route::post('/processList', 'Controller\\ProcessController@list');
     }
 
     public function server()

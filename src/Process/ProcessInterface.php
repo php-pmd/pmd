@@ -5,7 +5,7 @@ interface ProcessInterface
 {
     public function list();
 
-    public function create(array $config);
+    public function create($name, array $config);
 
     public function get(string $name);
 
