@@ -7,6 +7,11 @@ class Process extends AbstractProcess
     public function create($name, array $config)
     {
         if ($config['autostart'] ?? false) {
+            $this->process[$name] = [
+                'name' => $name,
+                'runtime' => 0,
+                'workers' => [],
+            ];
             $count = $config['count'] ?? 1;
             for ($i = 0; $i < $count; $i++) {
                 try {
@@ -21,16 +26,20 @@ class Process extends AbstractProcess
                     });
                     $worker->on('exit', function ($exitCode) use ($name, $pid) {
                         \logger()->info("{$name}[{$pid}] exitCode:{$exitCode}");
-                        unset($this->process[$name][$pid]);
+                        unset($this->process[$name]['workers'][$pid]);
                     });
-                    $this->process[$name][$pid] = $worker;
+                    $this->process[$name]['workers'][$pid] = $worker;
                 } catch (\Throwable $throwable) {
                     trigger_error("[{$config['cmd']}] run fail.");
                     break;
                 }
             }
         } else {
-            $this->process[$name] = [];
+            $this->process[$name] = [
+                'name' => $name,
+                'runtime' => 0,
+                'workers' => [],
+            ];
         }
     }
 
