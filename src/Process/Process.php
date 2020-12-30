@@ -10,26 +10,16 @@ class Process extends AbstractProcess
             $this->process[$name] = [
                 'name' => $name,
                 'runtime' => 0,
-                'workers' => [],
+                'stop_time' => 0,
+                'error_msg' => '',
+                'pids' => [],
             ];
             $count = $config['count'] ?? 1;
             for ($i = 0; $i < $count; $i++) {
                 try {
-                    $worker = new \React\ChildProcess\Process('exec ' . $config['cmd']);
-                    $worker->start(\loop());
-                    $pid = $worker->getPid();
-                    $worker->stdout->on('data', static function ($data) {
-                        \logger()->info($data);
-                    });
-                    $worker->stderr->on('data', static function ($data) {
-                        \logger()->error($data);
-                    });
-                    $worker->on('exit', function ($exitCode) use ($name, $pid) {
-                        \logger()->info("{$name}[{$pid}] exitCode:{$exitCode}");
-                        unset($this->process[$name]['workers'][$pid]);
-                    });
-                    $this->process[$name]['workers'][$pid] = $worker;
+                    $this->createOne($name, $config);
                 } catch (\Throwable $throwable) {
+                    $this->process[$name]['error_msg'] = $throwable->getMessage();
                     trigger_error("[{$config['cmd']}] run fail.");
                     break;
                 }
@@ -38,8 +28,47 @@ class Process extends AbstractProcess
             $this->process[$name] = [
                 'name' => $name,
                 'runtime' => 0,
-                'workers' => [],
+                'stop_time' => 0,
+                'error_msg' => '',
+                'pids' => [],
             ];
+        }
+    }
+
+    /**
+     * @param $name
+     * @param $config
+     * @throws \Throwable
+     */
+    public function createOne($name, $config)
+    {
+        try {
+            $worker = new \React\ChildProcess\Process('exec ' . $config['cmd']);
+            $worker->start(\loop());
+            $pid = $worker->getPid();
+            $worker->stdout->on('data', static function ($data) {
+                \logger()->info($data);
+            });
+            $worker->stderr->on('data', static function ($data) {
+                \logger()->error($data);
+            });
+            $worker->on('exit', function ($exitCode) use ($name, $pid) {
+                \logger()->info("{$name}[{$pid}] exitCode:{$exitCode}");
+                foreach ($this->process[$name]['pids'] as $index => $item) {
+                    if ($item == $pid) {
+                        unset($this->process[$name]['pids'][$index]);
+                        break;
+                    }
+                }
+                if (count($this->process[$name]['pids']) == 0) {
+                    $this->process[$name]['runtime'] = 0;
+                    $this->process[$name]['stop_time'] = time();
+                }
+            });
+            $this->process[$name]['pids'][] = $pid;
+        } catch (\Throwable $throwable) {
+            trigger_error("[{$config['cmd']}] run fail.");
+            throw $throwable;
         }
     }
 

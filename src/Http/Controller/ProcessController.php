@@ -14,7 +14,6 @@ class ProcessController extends BaseController
         $address = $input['address'] ?? null;
         $processBusiness = new ProcessBusiness();
         return $processBusiness->getList($address, function ($processList) {
-            var_dump($processList);
             return JsonResponse::ok([
                 'code' => 0,
                 'msg' => 'success',

@@ -59,90 +59,39 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="(process, address) in processList">
-                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
-                <td><span>pid 138, 运行时长 0:00:38</span></td>
-                <td class="processnum"><span>10</span></td>
-                <td class="status"><span class="statusrunning">运行</span></td>
-                <td class="action">
-                    <ul>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=restart" name="Restart">重启</a>
-                        </li>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=stop" name="Stop">停止</a>
-                        </li>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
-                        </li>
-                    </ul>
+            <tr v-for="(process, name) in processList">
+                <td><a href="javascript:void(0);" target="_blank">{{name}}</a></td>
+                <td>
+                    <span v-if="process.pids.length > 0" v-bind:title="process.pids">运行时长:{{timeToString(process.runtime)}}<br/>PID:{{process.pids}}</span>
+                    <span v-else-if="process.pids.length === 0 && process.error_msg !== ''">{{process.error_msg}}</span>
+                    <span v-else-if="process.pids.length === 0 && process.stop_time !== 0">停止时间 {{timestampToString(process.stop_time)}}</span>
+                    <span v-else="process.pids.length === 0 && !process.stop_time">未曾运行</span>
                 </td>
-            </tr>
-            <tr class="">
-                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
-                <td><span>pid 138, 运行时长 0:00:38</span></td>
-                <td class="processnum"><span>10</span></td>
-                <td class="status"><span class="statusrunning">运行</span></td>
-                <td class="action">
-                    <ul>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=restart" name="Restart">重启</a>
-                        </li>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=stop" name="Stop">停止</a>
-                        </li>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
-                        </li>
-                    </ul>
+                <td class="processnum"><span>{{process.pids.length}}</span></td>
+                <td class="status">
+                    <span class="statusrunning" v-if="process.pids.length > 0">运行</span>
+                    <span class="statusnominal" v-if="process.pids.length == 0">停止</span>
+                    <span class="statuserror" v-if="process.error_msg != ''">异常</span>
                 </td>
-            </tr>
-            <tr class="">
-                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
-                <td><span>Dec 25 02:34 PM</span></td>
-                <td class="processnum"><span>0</span></td>
-                <td class="status"><span class="statusnominal">停止</span></td>
                 <td class="action">
                     <ul>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=start" name="Start">开启</a>
+                        <li v-if="process.pids.length > 0">
+                            <a href="javascript:void(0);">重启</a>
+                        </li>
+                        <li v-if="process.pids.length > 0">
+                            <a href="javascript:void(0);">停止</a>
+                        </li>
+                        <li v-if="process.pids.length == 0">
+                            <a href="javascript:void(0);">启动</a>
+                        </li>
+                        <li v-if="process.pids.length == 0">
+                            <a href="javascript:void(0);">删除</a>
                         </li>
                         <li>
-                            <a href="logtail/workerman" name="Delete" target="_blank">删除</a>
+                            <a href="javascript:void(0);">清除日志</a>
                         </li>
                         <li>
-                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-            <tr class="">
-                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
-                <td><span>Dec 25 02:34 PM</span></td>
-                <td class="processnum"><span>0</span></td>
-                <td class="status"><span class="statuserror">异常</span></td>
-                <td class="action">
-                    <ul>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=start" name="Start">开启</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Delete" target="_blank">删除</a>
-                        </li>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
+                            <a href="javascript:void(0);">查看日志</a>
                         </li>
                     </ul>
                 </td>
