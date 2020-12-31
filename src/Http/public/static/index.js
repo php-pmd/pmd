@@ -46,7 +46,7 @@ window.onload = function () {
                     }
                     this.getProcessList();
                 }).catch(function (error) {
-                    this.tips = error.data;
+                    this.tips = error.toString();
                 });
             },
             getProcessList: function () {
@@ -54,13 +54,13 @@ window.onload = function () {
                     this.$http.post('/processList', {
                         address: this.address
                     }).then(function (response) {
-                        if (200 === response.status) {
+                        if (200 === response.status && response.data.code === 0 && response.data.data.error === undefined) {
                             this.processList = response.data.data;
                         } else {
-                            this.tips = response.data.msg;
+                            this.tips = response.data.data.error;
                         }
                     }).catch(function (error) {
-                        console.log(error);
+                        this.tips = error.toString();
                     });
                 }
             },

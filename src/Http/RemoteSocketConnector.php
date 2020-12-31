@@ -23,13 +23,15 @@ class RemoteSocketConnector
         if (null == static::$pingTimer) {
             static::$pingTimer = \loop()->addPeriodicTimer(30, function () {
                 foreach (static::$remoteSocketConnector as $remoteAddress => $remoteSocketConnector) {
-                    $remoteSocketConnector['socket']->then(function (ConnectionInterface $connection) use ($remoteAddress, $remoteSocketConnector) {
-                        $connection->write(JsonNL::encode(['cmd' => 'ping', 'access_token' => $remoteSocketConnector['access_token']]));
-                        first($connection)->then(function ($data) use ($remoteAddress) {
-                            $data = JsonNL::decode($data);
-                            if (isset($data['pong'])) static::$remoteSocketConnector[$remoteAddress]['live_last_time'] = $data['pong'];
+                    if ($remoteSocketConnector['live_state'] == 1) {
+                        $remoteSocketConnector['socket']->then(function (ConnectionInterface $connection) use ($remoteAddress, $remoteSocketConnector) {
+                            $connection->write(JsonNL::encode(['cmd' => 'ping', 'access_token' => $remoteSocketConnector['access_token']]));
+                            first($connection)->then(function ($data) use ($remoteAddress) {
+                                $data = JsonNL::decode($data);
+                                if (isset($data['pong'])) static::$remoteSocketConnector[$remoteAddress]['live_last_time'] = $data['pong'];
+                            });
                         });
-                    });
+                    }
                 }
             });
             \loop()->addPeriodicTimer(50, function () {
@@ -49,7 +51,6 @@ class RemoteSocketConnector
                     $connection->write(JsonNL::encode($data));
                     return first($connection)->then(function ($data) use ($remoteAddress) {
                         $data = JsonNL::decode($data);
-                        var_dump($data);
                         if ($data['link_state'] == 1) {
                             static::$remoteSocketConnector[$remoteAddress] = [
                                 'live_state' => 1,
