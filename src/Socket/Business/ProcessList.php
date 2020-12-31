@@ -6,6 +6,6 @@ class ProcessList extends BaseBusiness
 {
     public function __invoke($data)
     {
-        return $this->process->list();
+        return ['code' =>0, 'data'=>$this->process->list()];
     }
 }

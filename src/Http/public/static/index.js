@@ -20,12 +20,12 @@ window.onload = function () {
                 }).then(function (response) {
                     if (200 === response.status && 0 === response.data.code) {
                         this.getProcessList();
-                        this.tips = response.data.data.msg;
+                        this.tips = response.data.msg;
                     } else {
-                        this.tips = response.data.data.msg;
+                        this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    console.log(error);
+                    this.tips = error.toString();
                 });
             },
             selectQuery: function () {

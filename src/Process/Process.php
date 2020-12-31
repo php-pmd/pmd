@@ -25,12 +25,12 @@ class Process extends AbstractProcess
                 }
                 return ['code' => 0, 'msg' => '启动成功'];
             } else {
-                return ['code' => 1, 'msg' => '配置不存在'];
+                return ['code' => 2, 'msg' => '配置不存在'];
             }
         } catch (\Throwable $throwable) {
             $this->process[$name]['error_msg'] = $throwable->getMessage();
             trigger_error("[{$config['cmd']}] run fail.");
-            return ['code' => 1, 'msg' => $throwable->getMessage()];
+            return ['code' => 2, 'msg' => $throwable->getMessage()];
         }
     }
 

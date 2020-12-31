@@ -14,11 +14,7 @@ class ProcessController extends BaseController
         $address = $input['address'] ?? null;
         $processBusiness = new ProcessBusiness();
         return $processBusiness->getList($address, function ($processList) {
-            return JsonResponse::ok([
-                'code' => 0,
-                'msg' => 'success',
-                'data' => $processList
-            ]);
+            return JsonResponse::ok($processList);
         });
     }
 
@@ -29,11 +25,7 @@ class ProcessController extends BaseController
         $name = $input['name'] ?? null;
         $processBusiness = new ProcessBusiness();
         return $processBusiness->start($address, $name, function ($result) {
-            return JsonResponse::ok([
-                'code' => 0,
-                'msg' => 'success',
-                'data' => $result
-            ]);
+            return JsonResponse::ok($result);
         });
     }
 }
