@@ -3,7 +3,6 @@
 namespace PhpPmd\Pmd;
 
 use Exception;
-use PhpPmd\Pmd\Command;
 use PhpPmd\Pmd\Di\Container;
 use PhpPmd\Pmd\File\PidFile;
 use PhpPmd\Pmd\File\ConfigFile;
@@ -26,6 +25,7 @@ class Pmd
     public static $container;
     protected static $version = 'v0.0.1';
     protected static $http_enable = false;
+    protected static $local_ip = '';
 
     public static function run()
     {
@@ -35,6 +35,7 @@ class Pmd
         static::loadFunctions();
         static::setExceptionHandler();
         static::initFiles();
+        static::getLocalIp();
         static::parseCommand();
         static::daemonize();
         static::initLoop();
@@ -250,20 +251,42 @@ class Pmd
             if (isset($config['socket']['port'])) {
                 $socket_port = $config['socket']['port'];
             } else {
+                $ip = static::$local_ip;
                 $socket_port = $config['http']['port'] ?? 2021;
                 $socket_port += 1;
                 $config['socket'] = [
-                    'ip' => '127.0.0.1',
+                    'ip' => $ip,
                     'port' => $socket_port,
                     'app_key' => \uuid('k-'),
                     'app_secret' => uuid('s-'),
                 ];
-                $config['remote_socket']["127.0.0.1:{$socket_port}"] = $config['socket'];
+                $config['remote_socket']["{$ip}:{$socket_port}"] = $config['socket'];
                 \configFile()->setContent($config);
             }
             return new SocketServer((int)$socket_port);
         });
         \socket();
+    }
+
+    protected static function getLocalIp()
+    {
+        if (function_exists('exec')) {
+            $preg = "/\A((([0-9]?[0-9])|(1[0-9]{2})|(2[0-4][0-9])|(25[0-5]))\.){3}(([0-9]?[0-9])|(1[0-9]{2})|(2[0-4][0-9])|(25[0-5]))\Z/";
+            exec("ifconfig", $out, $stats);
+            if (!empty($out)) {
+                if (isset($out[1]) && strstr($out[1], 'inet')) {
+                    $tmpIp = explode(" ", trim($out[1]));
+                    if (preg_match($preg, trim($tmpIp[1]))) {
+                        static::$local_ip = trim($tmpIp[1]);
+                        return true;
+                    }
+                }
+            }
+            \logger()->error('Ip not found.');
+        } else {
+            \logger()->error('Function exec not found.');
+        }
+        exit(0);
     }
 
     protected static function startHttpServer()

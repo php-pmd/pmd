@@ -24,11 +24,22 @@ class HttpServer
 
     public function server()
     {
+        $this->connector();
         $httpServer = new Server(\loop(), function (ServerRequestInterface $request) {
             return Route::dispatch($request);
         });
         $httpServer->listen(new SocketServer("0.0.0.0:{$this->port}", \loop()));
         \logger()->writeln(" HTTP server listening on port <g>{$this->port}</g>.");
         return $httpServer;
+    }
+
+    protected function connector()
+    {
+        $config = \configFile()->getContent();
+        if (isset($config['remote_socket']) && count($config['remote_socket'])) {
+            foreach ($config['remote_socket'] as $address => $remote_socket) {
+                RemoteSocketConnector::connector($address);
+            }
+        }
     }
 }

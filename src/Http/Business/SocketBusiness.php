@@ -19,8 +19,9 @@ class SocketBusiness
      */
     protected function send($remoteAddress, $data, $callback)
     {
-        return RemoteSocketConnector::connector($remoteAddress)
-            ->then(function (ConnectionInterface $connection) use ($data, $callback) {
+        $connector = RemoteSocketConnector::connector($remoteAddress);
+        if (isset($connector['live_state']) && $connector['live_state']) {
+            return $connector['socket']->then(function (ConnectionInterface $connection) use ($data, $callback) {
                 $connection->write(JsonNL::encode($data));
                 return first($connection)->then(function ($data) use ($callback) {
                     return $callback(JsonNL::decode($data));
@@ -30,6 +31,9 @@ class SocketBusiness
                 RemoteSocketConnector::getConnector($remoteAddress)['live_state'] = 0;
                 return $callback(['error' => $reason->getMessage()]);
             });
+        } else {
+            return $callback(['error' => "{$remoteAddress} link fail."]);
+        }
     }
 
     /**

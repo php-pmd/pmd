@@ -33,17 +33,16 @@ window.onload = function () {
             },
             getSocketList: function () {
                 this.$http.post('/socketList').then(function (response) {
-                    if (200 === response.status) {
-                        this.socketList = response.data;
+                    if (200 === response.status && 0 === response.data.code) {
                         if (this.address === null) {
-                            Object.keys(response.data).forEach(function (k) {
-                                if (response.data[k]['ip'] === '127.0.0.1') {
-                                    pmd.address = k;
-                                }
-                            });
+                            for (key in response.data.data) {
+                                this.address = key;
+                                break;
+                            }
                         }
+                        this.socketList = response.data.data;
                     } else {
-                        this.tips = response.data;
+                        this.tips = response.data.msg;
                     }
                     this.getProcessList();
                 }).catch(function (error) {
@@ -51,17 +50,19 @@ window.onload = function () {
                 });
             },
             getProcessList: function () {
-                this.$http.post('/processList', {
-                    address: this.address
-                }).then(function (response) {
-                    if (200 === response.status) {
-                        this.processList = response.data.data;
-                    } else {
-                        this.tips = response.data.msg;
-                    }
-                }).catch(function (error) {
-                    console.log(error);
-                });
+                if (this.address != null) {
+                    this.$http.post('/processList', {
+                        address: this.address
+                    }).then(function (response) {
+                        if (200 === response.status) {
+                            this.processList = response.data.data;
+                        } else {
+                            this.tips = response.data.msg;
+                        }
+                    }).catch(function (error) {
+                        console.log(error);
+                    });
+                }
             },
             getUrlKey(name) {
                 return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.href) || [, ""])[1].replace(/\+/g, '%20')) || null;
