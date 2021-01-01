@@ -25,14 +25,11 @@
         <div class="status_msg" v-if="tips!==''">{{tips}}</div>
         <ul class="clr" id="buttons">
             <div class="left">
-                <li id="refresh"><a href="javascript:window.location.reload()">
-                    <button>刷新</button>
-                </a></li>
                 <li id="restart_all">
-                    <button>全部重启</button>
+                    <button v-on:click="restartall">全部重启</button>
                 </li>
                 <li id="stop_all">
-                    <button>全部停止</button>
+                    <button v-on:click="stopall">全部停止</button>
                 </li>
             </div>
             <div class="right">
@@ -60,7 +57,7 @@
             </thead>
             <tbody>
             <tr v-for="(process, name) in processList">
-                <td><a href="javascript:void(0);" target="_blank">{{name}}</a></td>
+                <td><a href="javascript:void(0);">{{name}}</a></td>
                 <td>
                     <span v-if="process.pids.length > 0" v-bind:title="process.pids">运行时长:{{timeToString(process.runtime)}}<br/>PID:{{process.pids}}</span>
                     <span v-else-if="process.pids.length === 0 && process.error_msg !== ''">{{process.error_msg}}</span>
@@ -76,10 +73,10 @@
                 <td class="action">
                     <ul>
                         <li v-if="process.pids.length > 0">
-                            <a href="javascript:void(0);">重启</a>
+                            <a href="javascript:void(0);" v-on:click="restart(name)">重启</a>
                         </li>
                         <li v-if="process.pids.length > 0">
-                            <a href="javascript:void(0);">停止</a>
+                            <a href="javascript:void(0);" v-on:click="stop(name)">停止</a>
                         </li>
                         <li v-if="process.pids.length == 0">
                             <a href="javascript:void(0);" v-on:click="start(name)">启动</a>

@@ -9,6 +9,8 @@ abstract class AbstractProcess implements ProcessInterface
      */
     protected $process = [];
 
+    protected $allProcess = [];
+
     public function __construct($processConfig)
     {
         if ($processConfig && !empty($processConfig) && count($processConfig)) {

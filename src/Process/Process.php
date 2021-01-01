@@ -83,6 +83,7 @@ class Process extends AbstractProcess
                 \logger()->error($data);
             });
             $worker->on('exit', function ($exitCode) use ($name, $pid) {
+                unset($this->allProcess[$pid]);
                 \logger()->info("{$name}[{$pid}] exitCode:{$exitCode}");
                 foreach ($this->process[$name]['pids'] as $index => $item) {
                     if ($item == $pid) {
@@ -97,6 +98,7 @@ class Process extends AbstractProcess
                 }
             });
             $this->process[$name]['pids'][] = $pid;
+            $this->allProcess[$pid] = $worker;
         } catch (\Throwable $throwable) {
             trigger_error("[{$config['cmd']}] run fail.");
             throw $throwable;
@@ -108,35 +110,97 @@ class Process extends AbstractProcess
         return $this->process;
     }
 
-    public function get(string $name)
+    public function get($name)
     {
     }
 
-    public function restart(string $name)
+    public function restart($name)
     {
+        $result = $this->stop($name);
+        if ($result['code'] == 2) {
+            return ['code' => 2, 'msg' => '重启失败'];
+        } else {
+            $start_time = time();
+            \loop()->addPeriodicTimer(0.1, function ($timer) use ($start_time, $name) {
+                if (0 == count($this->process[$name]['pids'])) {
+                    \loop()->cancelTimer($timer);
+                    $this->start($name);
+                }
+                if (count($this->process[$name]['pids']) > 0 && time() - $start_time > 3) {
+                    \loop()->cancelTimer($timer);
+                }
+            });
+            return ['code' => 0, 'msg' => '重启成功'];
+        }
     }
+
 
     public function restartAll()
     {
+        $result = $this->stopAll();
+        if ($result['code'] == 0) {
+            $processConfig = \processFile()->getContent();
+            if ($processConfig && !empty($processConfig) && count($processConfig)) {
+                foreach ($processConfig as $name => $config) {
+                    $this->create($name, $config);
+                }
+            }
+            return ['code' => 0, 'msg' => '全部重启成功'];
+        } else {
+            return $result;
+        }
     }
 
-    public function stop(string $name)
+    public function stop($name)
     {
+        if (isset($this->process[$name])) {
+            try {
+                if (isset($this->process[$name]['pids']) && count($this->process[$name]['pids']) > 0) {
+                    foreach ($this->process[$name]['pids'] as $pid) {
+                        $process = $this->allProcess[$pid];
+                        \loop()->addPeriodicTimer(0.01, function ($timer) use ($process) {
+                            if ($process->isRunning()) {
+                                $process->terminate();
+                            } else {
+                                if ($process->isTerminated()) \loop()->cancelTimer($timer);
+                            }
+                        });
+                    }
+                    return ['code' => 0, 'msg' => '停止成功'];
+                }
+                return ['code' => 0, 'msg' => '停止成功'];
+            } catch (\Throwable $throwable) {
+                $this->process[$name]['error_msg'] = $throwable->getMessage();
+                trigger_error("[{$name}] stop fail.");
+                return ['code' => 2, 'msg' => $throwable->getMessage()];
+            }
+
+        } else {
+            return ['code' => 2, 'msg' => '服务不存在'];
+        }
     }
 
     public function stopAll()
     {
+        $msg = null;
+        foreach ($this->process as $name => $process) {
+            $result = $this->stop($name);
+            if ($result['code'] == 2) {
+                $msg .= "{$name}{$result['msg']};";
+            }
+        }
+        return ['code' => 0, 'msg' => $msg ?? "全部停止成功!"];
     }
 
-    public function delete(string $name)
+    public function delete($name)
     {
     }
 
-    public function clearLog(string $name)
+    public function clearLog($name)
     {
     }
 
-    public function log(string $name)
+    public function log($name)
     {
     }
 

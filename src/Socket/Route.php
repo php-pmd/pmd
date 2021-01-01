@@ -5,8 +5,12 @@ namespace PhpPmd\Pmd\Socket;
 use PhpPmd\Pmd\Process\ProcessInterface;
 use PhpPmd\Pmd\Socket\Business\CreateToken;
 use PhpPmd\Pmd\Socket\Business\ProcessList;
+use PhpPmd\Pmd\Socket\Business\RestartallProcess;
+use PhpPmd\Pmd\Socket\Business\RestartProcess;
 use PhpPmd\Pmd\Socket\Business\Setting;
 use PhpPmd\Pmd\Socket\Business\StartProcess;
+use PhpPmd\Pmd\Socket\Business\StopallProcess;
+use PhpPmd\Pmd\Socket\Business\StopProcess;
 use React\Socket\ConnectionInterface;
 
 class Route
@@ -16,6 +20,10 @@ class Route
         'setting' => Setting::class,
         'process_list' => ProcessList::class,
         'start' => StartProcess::class,
+        'stop' => StopProcess::class,
+        'restart' => RestartProcess::class,
+        'restartall' => RestartallProcess::class,
+        'stopall' => StopallProcess::class,
     ];
 
     /**

@@ -22,8 +22,8 @@ class SocketServer extends AbstractSocket
         });
         \loop()->addPeriodicTimer(100, function () {
             foreach ($this->connections as $remoteAddress => $connection) {
-                if (1 == $this->connections[$remoteAddress]['live_state'] && time() > $this->connections[$remoteAddress]['live_last_time'] + 120) {
-                    $connection->close();
+                if (time() > $this->connections[$remoteAddress]['live_last_time'] + 120) {
+                    $connection['socket']->close();
                     unset($this->connections[$remoteAddress]);
                 }
             }

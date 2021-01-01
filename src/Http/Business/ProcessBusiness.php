@@ -15,4 +15,30 @@ class ProcessBusiness extends SocketBusiness
         $cmd = ['cmd' => 'start', 'data' => ['name' => $name]];
         return $this->send($address, $cmd, $callback);
     }
+
+    public function restart($address, $name, $callback)
+    {
+        $cmd = ['cmd' => 'restart', 'data' => ['name' => $name]];
+        return $this->send($address, $cmd, $callback);
+    }
+
+    public function stop($address, $name, $callback)
+    {
+        $cmd = ['cmd' => 'stop', 'data' => ['name' => $name]];
+        return $this->send($address, $cmd, $callback);
+    }
+
+    public function stopall($address, $callback)
+    {
+        $cmd = ['cmd' => 'stopall'];
+        return $this->send($address, $cmd, $callback);
+    }
+
+
+    public function restartall($address, $callback)
+    {
+        $cmd = ['cmd' => 'restartall'];
+        return $this->send($address, $cmd, $callback);
+    }
+
 }

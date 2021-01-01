@@ -11,15 +11,71 @@ window.onload = function () {
         mounted: function () {
             this.address = this.getUrlKey("address");
             this.getSocketList();
+            setInterval(function () {
+                pmd.getProcessList();
+            }, 1000);
         },
         methods: {
+            restartall: function () {
+                this.$http.post('/restartall', {
+                    address: this.address
+                }).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
+                        this.tips = response.data.msg;
+                    } else {
+                        this.tips = response.data.msg;
+                    }
+                }).catch(function (error) {
+                    this.tips = error.toString();
+                });
+            },
+            stopall: function () {
+                this.$http.post('/stopall', {
+                    address: this.address
+                }).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
+                        this.tips = response.data.msg;
+                    } else {
+                        this.tips = response.data.msg;
+                    }
+                }).catch(function (error) {
+                    this.tips = error.toString();
+                });
+            },
+            restart: function (name) {
+                this.$http.post('/restart', {
+                    name: name,
+                    address: this.address
+                }).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
+                        this.tips = response.data.msg;
+                    } else {
+                        this.tips = response.data.msg;
+                    }
+                }).catch(function (error) {
+                    this.tips = error.toString();
+                });
+            },
             start: function (name) {
                 this.$http.post('/start', {
                     name: name,
                     address: this.address
                 }).then(function (response) {
                     if (200 === response.status && 0 === response.data.code) {
-                        this.getProcessList();
+                        this.tips = response.data.msg;
+                    } else {
+                        this.tips = response.data.msg;
+                    }
+                }).catch(function (error) {
+                    this.tips = error.toString();
+                });
+            },
+            stop: function (name) {
+                this.$http.post('/stop', {
+                    name: name,
+                    address: this.address
+                }).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
                         this.tips = response.data.msg;
                     } else {
                         this.tips = response.data.msg;
@@ -44,7 +100,6 @@ window.onload = function () {
                     } else {
                         this.tips = response.data.msg;
                     }
-                    this.getProcessList();
                 }).catch(function (error) {
                     this.tips = error.toString();
                 });

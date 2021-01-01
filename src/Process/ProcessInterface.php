@@ -7,22 +7,22 @@ interface ProcessInterface
 
     public function create($name, array $config);
 
-    public function get(string $name);
+    public function get($name);
 
     public function start($name);
 
-    public function restart(string $name);
+    public function restart($name);
 
     public function restartAll();
 
-    public function stop(string $name);
+    public function stop($name);
 
     public function stopAll();
 
-    public function delete(string $name);
+    public function delete($name);
 
-    public function clearLog(string $name);
+    public function clearLog($name);
 
-    public function log(string $name);
+    public function log($name);
 
 }

@@ -28,4 +28,47 @@ class ProcessController extends BaseController
             return JsonResponse::ok($result);
         });
     }
+
+    public function stop(ServerRequestInterface $request)
+    {
+        $input = $this->post($request);
+        $address = $input['address'] ?? null;
+        $name = $input['name'] ?? null;
+        $processBusiness = new ProcessBusiness();
+        return $processBusiness->stop($address, $name, function ($result) {
+            return JsonResponse::ok($result);
+        });
+    }
+
+    public function restart(ServerRequestInterface $request)
+    {
+        $input = $this->post($request);
+        $address = $input['address'] ?? null;
+        $name = $input['name'] ?? null;
+        $processBusiness = new ProcessBusiness();
+        return $processBusiness->restart($address, $name, function ($result) {
+            return JsonResponse::ok($result);
+        });
+    }
+
+    public function restartall(ServerRequestInterface $request)
+    {
+        $input = $this->post($request);
+        $address = $input['address'] ?? null;
+        $processBusiness = new ProcessBusiness();
+        return $processBusiness->restartall($address, function ($result) {
+            return JsonResponse::ok($result);
+        });
+    }
+
+    public function stopall(ServerRequestInterface $request)
+    {
+        $input = $this->post($request);
+        $address = $input['address'] ?? null;
+        $processBusiness = new ProcessBusiness();
+        return $processBusiness->stopall($address, function ($result) {
+            return JsonResponse::ok($result);
+        });
+    }
+
 }
