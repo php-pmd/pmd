@@ -22,6 +22,9 @@ window.onload = function () {
             }, 1000);
         },
         methods: {
+            tail: function (name) {
+                window.open("/tail?address=" + this.address + "&name=" + name);
+            },
             restartall: function () {
                 this.$http.post('/restartall', {
                     address: this.address

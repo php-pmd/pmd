@@ -17,6 +17,7 @@ class HttpServer
     {
         $this->port = $port;
         Route::get('/', 'Controller\\IndexController@index');
+        Route::get('/tail', 'Controller\\IndexController@tail');
         Route::post('/socketList', 'Controller\\SocketController@list');
         Route::post('/processList', 'Controller\\ProcessController@list');
         Route::post('/add', 'Controller\\ProcessController@add');

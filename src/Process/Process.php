@@ -148,6 +148,8 @@ class Process extends AbstractProcess
                 foreach ($processConfig as $name => $config) {
                     $this->create($name, $config);
                 }
+            } else {
+                return ['code' => 2, 'msg' => "未设置服务"];
             }
             return ['code' => 0, 'msg' => '全部重启成功'];
         } else {
@@ -190,13 +192,17 @@ class Process extends AbstractProcess
     public function stopAll()
     {
         $msg = null;
-        foreach ($this->process as $name => $process) {
-            $result = $this->stop($name);
-            if ($result['code'] == 2) {
-                $msg .= "{$name}{$result['msg']};";
+        if (count($this->process)) {
+            foreach ($this->process as $name => $process) {
+                $result = $this->stop($name);
+                if ($result['code'] == 2) {
+                    $msg .= "{$name}{$result['msg']};";
+                }
             }
+            return ['code' => 0, 'msg' => $msg ?? "全部停止成功"];
+        } else {
+            return ['code' => 2, 'msg' => "未设置服务"];
         }
-        return ['code' => 0, 'msg' => $msg ?? "全部停止成功!"];
     }
 
     public function delete($name)
@@ -238,8 +244,11 @@ class Process extends AbstractProcess
     {
     }
 
-    public function log($name)
+    public function tail($name)
     {
+        $file = PMD_HOME . DIRECTORY_SEPARATOR . "{$name}" . DIRECTORY_SEPARATOR . date('Y-m') . '.log';
+        if (is_file($file)) return @file_get_contents($file);
+        else return '';
     }
 
     public function set()

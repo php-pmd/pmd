@@ -23,6 +23,6 @@ interface ProcessInterface
 
     public function clearLog($name);
 
-    public function log($name);
+    public function tail($name);
 
 }

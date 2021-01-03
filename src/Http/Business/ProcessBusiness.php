@@ -53,4 +53,10 @@ class ProcessBusiness extends SocketBusiness
         return $this->send($address, $cmd, $callback);
     }
 
+    public function tail($address, $name, $callback)
+    {
+        $cmd = ['cmd' => 'tail', 'data' => ['name' => $name]];
+        return $this->send($address, $cmd, $callback);
+    }
+
 }

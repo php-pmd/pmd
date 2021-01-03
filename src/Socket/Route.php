@@ -13,6 +13,7 @@ use PhpPmd\Pmd\Socket\Business\Setting;
 use PhpPmd\Pmd\Socket\Business\StartProcess;
 use PhpPmd\Pmd\Socket\Business\StopallProcess;
 use PhpPmd\Pmd\Socket\Business\StopProcess;
+use PhpPmd\Pmd\Socket\Business\TailProcess;
 use React\Socket\ConnectionInterface;
 
 class Route
@@ -25,6 +26,7 @@ class Route
         'stop' => StopProcess::class,
         'delete' => DeleteProcess::class,
         'add' => AddProcess::class,
+        'tail' => TailProcess::class,
         'restart' => RestartProcess::class,
         'restartall' => RestartallProcess::class,
         'stopall' => StopallProcess::class,
