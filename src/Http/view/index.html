@@ -82,7 +82,7 @@
                             <a href="javascript:void(0);" v-on:click="start(name)">启动</a>
                         </li>
                         <li v-if="process.pids.length == 0">
-                            <a href="javascript:void(0);">删除</a>
+                            <a href="javascript:void(0);" v-on:click="del(name)">删除</a>
                         </li>
                         <li>
                             <a href="javascript:void(0);">清除日志</a>
@@ -108,21 +108,22 @@
             </tr>
             <tr>
                 <td class="name">
-                    <input type="text" class="input-text" onkeyup="value=value.replace(/[^\w]/ig,'')" maxlength=32
-                           value="HelloPmd">
+                    <input type="text" v-model='add.name' class="input-text" onkeyup="value=value.replace(/[^\w]/ig,'')"
+                           maxlength=32>
                 </td>
                 <td class="cmd">
-                    <input type="text" class="input-text" onkeyup="value=value.replace(/[^\w\.\/\s\']/ig,'')"
-                           maxlength=128 value="echo 'Hello PMD'"/></td>
+                    <input type="text" v-model='add.cmd' class="input-text"
+                           onkeyup="value=value.replace(/[^\w\.\/\s\'-]/ig,'')"
+                           maxlength=128/></td>
                 <td class="number">
-                    <input class="input-text" onkeyup="this.value=this.value.replace(/\D/g,'')"
-                           onchange="this.value=this.value.replace(/\D/g,'')" value="4" maxlength="2"></td>
+                    <input class="input-text" v-model='add.count' onkeyup="this.value=this.value.replace(/\D/g,'')"
+                           onchange="this.value=this.value.replace(/\D/g,'')" maxlength="2"></td>
                 <td>
-                    <input type="radio" name="startauto" checked value="1"/>开
-                    <input type="radio" name="startauto" value="0"/>关
+                    <input type="radio" v-model='add.autostart' checked value="1"/>开
+                    <input type="radio" v-model='add.autostart' value="0"/>关
                 </td>
                 <td>
-                    <button>添加</button>
+                    <button v-on:click="addProcess">添加</button>
                 </td>
             </tr>
         </table>

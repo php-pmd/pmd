@@ -7,9 +7,9 @@ interface ProcessInterface
 
     public function create($name, array $config);
 
-    public function get($name);
-
     public function start($name);
+
+    public function add($config);
 
     public function restart($name);
 

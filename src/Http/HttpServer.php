@@ -19,8 +19,10 @@ class HttpServer
         Route::get('/', 'Controller\\IndexController@index');
         Route::post('/socketList', 'Controller\\SocketController@list');
         Route::post('/processList', 'Controller\\ProcessController@list');
+        Route::post('/add', 'Controller\\ProcessController@add');
         Route::post('/start', 'Controller\\ProcessController@start');
         Route::post('/stop', 'Controller\\ProcessController@stop');
+        Route::post('/delete', 'Controller\\ProcessController@delete');
         Route::post('/restart', 'Controller\\ProcessController@restart');
         Route::post('/stopall', 'Controller\\ProcessController@stopall');
         Route::post('/restartall', 'Controller\\ProcessController@restartall');

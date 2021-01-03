@@ -71,4 +71,38 @@ class ProcessController extends BaseController
         });
     }
 
+    public function delete(ServerRequestInterface $request)
+    {
+        $input = $this->post($request);
+        $address = $input['address'] ?? null;
+        $name = $input['name'] ?? null;
+        $processBusiness = new ProcessBusiness();
+        return $processBusiness->delete($address, $name, function ($result) {
+            return JsonResponse::ok($result);
+        });
+    }
+
+    public function add(ServerRequestInterface $request)
+    {
+        $input = $this->post($request);
+        $address = $input['address'] ?? null;
+        $name = $input['name'] ?? '';
+        $cmd = $input['cmd'] ?? '';
+        if ('' == $name || '' == $cmd) {
+            return ['code' => 1, 'msg' => '参数不能为空'];
+        }
+        $count = $input['count'] ?? 1;
+        $autostart = $input['autostart'] ?? false;
+        $config = [
+            'name' => $name,
+            'cmd' => $cmd,
+            'count' => $count,
+            'autostart' => $autostart,
+        ];
+        $processBusiness = new ProcessBusiness();
+        return $processBusiness->add($address, $config, function ($result) {
+            return JsonResponse::ok($result);
+        });
+    }
+
 }

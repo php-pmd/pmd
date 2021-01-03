@@ -6,7 +6,13 @@ window.onload = function () {
             message: '页面加载于 ' + new Date().toLocaleString(),
             address: '',
             socketList: {},
-            processList: {}
+            processList: {},
+            add: {
+                name: 'HelloPmd',
+                cmd: "echo 'Hello PMD'",
+                count: 1,
+                autostart: 0
+            }
         },
         mounted: function () {
             this.address = this.getUrlKey("address");
@@ -26,7 +32,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error.toString();
+                    this.tips = error;
                 });
             },
             stopall: function () {
@@ -39,7 +45,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error.toString();
+                    this.tips = error;
                 });
             },
             restart: function (name) {
@@ -53,7 +59,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error.toString();
+                    this.tips = error;
                 });
             },
             start: function (name) {
@@ -67,7 +73,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error.toString();
+                    this.tips = error;
                 });
             },
             stop: function (name) {
@@ -81,7 +87,35 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error.toString();
+                    this.tips = error;
+                });
+            },
+            del: function (name) {
+                this.$http.post('/delete', {
+                    name: name,
+                    address: this.address
+                }).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
+                        this.tips = response.data.msg;
+                    } else {
+                        this.tips = response.data.msg;
+                    }
+                }).catch(function (error) {
+                    this.tips = error;
+                });
+            },
+            addProcess: function () {
+                this.add.address = this.address;
+                this.$http.post('/add',
+                    this.add
+                ).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
+                        this.tips = response.data.msg;
+                    } else {
+                        this.tips = response.data.msg;
+                    }
+                }).catch(function (error) {
+                    this.tips = error;
                 });
             },
             selectQuery: function () {
@@ -101,7 +135,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error.toString();
+                    this.tips = error;
                 });
             },
             getProcessList: function () {
@@ -115,7 +149,7 @@ window.onload = function () {
                             this.tips = response.data.data.error;
                         }
                     }).catch(function (error) {
-                        this.tips = error.toString();
+                        this.tips = error;
                     });
                 }
             },

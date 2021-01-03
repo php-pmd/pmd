@@ -3,7 +3,9 @@
 namespace PhpPmd\Pmd\Socket;
 
 use PhpPmd\Pmd\Process\ProcessInterface;
+use PhpPmd\Pmd\Socket\Business\AddProcess;
 use PhpPmd\Pmd\Socket\Business\CreateToken;
+use PhpPmd\Pmd\Socket\Business\DeleteProcess;
 use PhpPmd\Pmd\Socket\Business\ProcessList;
 use PhpPmd\Pmd\Socket\Business\RestartallProcess;
 use PhpPmd\Pmd\Socket\Business\RestartProcess;
@@ -21,6 +23,8 @@ class Route
         'process_list' => ProcessList::class,
         'start' => StartProcess::class,
         'stop' => StopProcess::class,
+        'delete' => DeleteProcess::class,
+        'add' => AddProcess::class,
         'restart' => RestartProcess::class,
         'restartall' => RestartallProcess::class,
         'stopall' => StopallProcess::class,

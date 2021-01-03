@@ -9,6 +9,9 @@ use React\Socket\ConnectionInterface;
 
 class SocketServer extends AbstractSocket
 {
+    /**
+     * @var Process $process
+     */
     protected $process;
 
     protected $connections = [];
@@ -47,5 +50,13 @@ class SocketServer extends AbstractSocket
                 $connection->write(JsonNl::encode(['pong' => time()]));
             }
         });
+    }
+
+    /**
+     * @return Process
+     */
+    public function getProcess()
+    {
+        return $this->process;
     }
 }

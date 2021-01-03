@@ -28,6 +28,18 @@ class ProcessBusiness extends SocketBusiness
         return $this->send($address, $cmd, $callback);
     }
 
+    public function add($address, $config, $callback)
+    {
+        $cmd = ['cmd' => 'add', 'data' => $config];
+        return $this->send($address, $cmd, $callback);
+    }
+
+    public function delete($address, $name, $callback)
+    {
+        $cmd = ['cmd' => 'delete', 'data' => ['name' => $name]];
+        return $this->send($address, $cmd, $callback);
+    }
+
     public function stopall($address, $callback)
     {
         $cmd = ['cmd' => 'stopall'];
