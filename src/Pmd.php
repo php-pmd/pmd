@@ -215,7 +215,7 @@ class Pmd
             case \SIGHUP:
                 $allProcess = \socket()->getProcess()->getAllProcess();
                 foreach ($allProcess as $pid => $process) {
-                    \loop()->addPeriodicTimer(0.5, function ($timer) use ($process) {
+                    \loop()->addPeriodicTimer(0.1, function ($timer) use ($process) {
                         if ($process->isRunning()) {
                             $process->terminate(SIGINT);
                         } else {
@@ -223,10 +223,10 @@ class Pmd
                         }
                     });
                 }
-                \logger()->info("PMD stop success[<g>OK</g>].");
-                \loop()->addPeriodicTimer(0.2, function ($timer) {
+                \loop()->addPeriodicTimer(0.1, function ($timer) {
                     if (count(\socket()->getProcess()->getAllProcess()) == 0) {
                         \loop()->cancelTimer($timer);
+                        \logger()->info("PMD stop success[<g>OK</g>].");
                         static::clearAll();
                     }
                 });
