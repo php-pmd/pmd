@@ -24,18 +24,13 @@ class RemoteSocketConnector
             static::$pingTimer = \loop()->addPeriodicTimer(30, function () {
                 foreach (static::$remoteSocketConnector as $remoteAddress => $remoteSocketConnector) {
                     if ($remoteSocketConnector['live_state'] == 1) {
-                        $remoteSocketConnector['socket']->then(function (ConnectionInterface $connection) use ($remoteAddress, $remoteSocketConnector) {
-                            $connection->write(JsonNL::encode(['cmd' => 'ping', 'access_token' => $remoteSocketConnector['access_token']]));
-                            first($connection)->then(function ($data) use ($remoteAddress) {
-                                $data = JsonNL::decode($data);
-                                if (isset($data['pong'])) static::$remoteSocketConnector[$remoteAddress]['live_last_time'] = $data['pong'];
-                            });
+                        $connection = $remoteSocketConnector['socket'];
+                        $connection->write(JsonNL::encode(['cmd' => 'ping']));
+                        first($connection)->then(function ($data) use ($remoteAddress) {
+                            $data = JsonNL::decode($data);
+                            if (isset($data['pong'])) static::$remoteSocketConnector[$remoteAddress]['live_last_time'] = time();
                         });
                     }
-                }
-            });
-            \loop()->addPeriodicTimer(50, function () {
-                foreach (static::$remoteSocketConnector as $remoteAddress => $remoteSocketConnector) {
                     if (time() > static::$remoteSocketConnector[$remoteAddress]['live_last_time'] + 120) {
                         static::$remoteSocketConnector[$remoteAddress]['live_state'] = 0;
                     }
@@ -47,22 +42,20 @@ class RemoteSocketConnector
                 ->then(function (ConnectionInterface $connection) use ($remoteAddress) {
                     $config = \configFile()->getContent();
                     $remote_socket = $config['remote_socket'][$remoteAddress];
-                    $data = ['cmd' => 'create_token', 'data' => $remote_socket];
+                    $data = ['cmd' => 'auth', 'data' => $remote_socket];
                     $connection->write(JsonNL::encode($data));
-                    return first($connection)->then(function ($data) use ($remoteAddress) {
+                    return first($connection)->then(function ($data) use ($connection, $remoteAddress) {
                         $data = JsonNL::decode($data);
-                        if ($data['link_state'] == 1) {
+                        if ($data['code'] == 0) {
                             static::$remoteSocketConnector[$remoteAddress] = [
                                 'live_state' => 1,
                                 'live_last_time' => time(),
-                                'access_token' => $data['access_token'],
-                                'socket' => static::connect($remoteAddress)
+                                'socket' => $connection
                             ];
                         } else {
                             static::$remoteSocketConnector[$remoteAddress] = [
                                 'live_state' => 0,
                                 'live_last_time' => time(),
-                                'access_token' => '',
                                 'socket' => null
                             ];
                         }
@@ -73,7 +66,6 @@ class RemoteSocketConnector
                     static::$remoteSocketConnector[$remoteAddress] = [
                         'live_state' => 0,
                         'live_last_time' => time(),
-                        'access_token' => '',
                         'socket' => null
                     ];
                     return static::$remoteSocketConnector[$remoteAddress];

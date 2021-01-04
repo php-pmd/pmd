@@ -3,6 +3,7 @@ window.onload = function () {
         el: '#wrapper',
         data: {
             tips: "",
+            nowTime: new Date().toLocaleString(),
             message: '页面加载于 ' + new Date().toLocaleString(),
             address: '',
             socketList: {},
@@ -19,6 +20,7 @@ window.onload = function () {
             this.getSocketList();
             setInterval(function () {
                 pmd.getProcessList();
+                pmd.message = '页面加载于 ' + new Date().toLocaleString();
             }, 1000);
         },
         methods: {
@@ -149,7 +151,7 @@ window.onload = function () {
                         if (200 === response.status && response.data.code === 0 && response.data.data.error === undefined) {
                             this.processList = response.data.data;
                         } else {
-                            this.tips = response.data.data.error;
+                            this.tips = response.data.msg;
                         }
                     }).catch(function (error) {
                         this.tips = error;

@@ -3,6 +3,7 @@
 namespace PhpPmd\Pmd\Socket;
 
 use PhpPmd\Pmd\Process\Process;
+use PhpPmd\Pmd\Socket\Business\AuthToken;
 use PhpPmd\Pmd\Socket\Protocols\JsonNL;
 use React\Socket\Server;
 use React\Socket\ConnectionInterface;
@@ -26,7 +27,7 @@ class SocketServer extends AbstractSocket
         \loop()->addPeriodicTimer(100, function () {
             foreach ($this->connections as $remoteAddress => $connection) {
                 if (time() > $this->connections[$remoteAddress]['live_last_time'] + 120) {
-                    $connection['socket']->close();
+                    $connection['connection']->close();
                     unset($this->connections[$remoteAddress]);
                 }
             }
@@ -38,13 +39,28 @@ class SocketServer extends AbstractSocket
     {
         $this->connections[$connection->getRemoteAddress()] = [
             'live_last_time' => time(),
-            'socket' => $connection
+            'auth' => false,
+            'connection' => $connection
         ];
         $connection->on('data', function ($data) use ($connection) {
-            $this->connections[$connection->getRemoteAddress()]['live_last_time'] = time();
             $data = JsonNL::decode($data);
             if (isset($data['cmd']) && 'ping' != $data['cmd']) {
-                $result = Route::dispatch($connection, $this->process, $data['cmd'], $data['data'] ?? null);
+                if ($data['cmd'] == 'auth') {
+                    if (!(new AuthToken($this->process, $connection))($data['data'])) {
+                        $result = ["code" => 2, 'msg' => "Auth fail."];
+                    } else {
+                        $this->connections[$connection->getRemoteAddress()]['auth'] = true;
+                        $this->connections[$connection->getRemoteAddress()]['live_last_time'] = time();
+                        $result = ["code" => 0, 'msg' => "Auth ok."];
+                    }
+                } else {
+                    if ($this->connections[$connection->getRemoteAddress()]['auth']) {
+                        $this->connections[$connection->getRemoteAddress()]['live_last_time'] = time();
+                        $result = Route::dispatch($connection, $this->process, $data['cmd'], $data['data'] ?? null);
+                    } else {
+                        $result = ["code" => 2, 'msg' => "No auth."];
+                    }
+                }
                 $connection->write(JsonNl::encode($result));
             } elseif ('ping' == $data['cmd']) {
                 $connection->write(JsonNl::encode(['pong' => time()]));

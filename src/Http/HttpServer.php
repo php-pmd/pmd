@@ -31,7 +31,7 @@ class HttpServer
 
     public function server()
     {
-        $this->connector();
+        //$this->connector();
         $httpServer = new Server(\loop(), function (ServerRequestInterface $request) {
             return Route::dispatch($request);
         });

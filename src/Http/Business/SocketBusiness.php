@@ -20,19 +20,24 @@ class SocketBusiness
     protected function send($remoteAddress, $data, $callback)
     {
         $connector = RemoteSocketConnector::connector($remoteAddress);
-        if (isset($connector['live_state']) && $connector['live_state']) {
-            return $connector['socket']->then(function (ConnectionInterface $connection) use ($data, $callback) {
-                $connection->write(JsonNL::encode($data));
-                return first($connection)->then(function ($data) use ($callback) {
-                    return $callback(JsonNL::decode($data));
-                });
-            })->otherwise(function ($reason) use ($remoteAddress, $callback) {
-                \logger()->error("{$reason->getMessage()} in file {$reason->getFile()} on line {$reason->getLine()}");
-                RemoteSocketConnector::getConnector($remoteAddress)['live_state'] = 0;
-                return $callback(['error' => $reason->getMessage()]);
-            });
+        if (is_array($connector)) {
+            if (isset($connector['live_state']) && $connector['live_state']) {
+                try {
+                    $connection = $connector['socket'];
+                    $connection->write(JsonNL::encode($data));
+                    return first($connection)->then(function ($data) use ($callback) {
+                        return $callback(JsonNL::decode($data));
+                    });
+                } catch (\Throwable $throwable) {
+                    \logger()->error("{$throwable->getMessage()} in file {$throwable->getFile()} on line {$throwable->getLine()}");
+                    RemoteSocketConnector::getConnector($remoteAddress)['live_state'] = 0;
+                    return $callback(['code' => 1, 'msg' => $throwable->getMessage()]);
+                }
+            } else {
+                return $callback(['code' => 1, 'msg' => "{$remoteAddress} link fail."]);
+            }
         } else {
-            return $callback(['error' => "{$remoteAddress} link fail."]);
+            return $callback(['code' => 1, 'msg' => "Loading..."]);
         }
     }
 

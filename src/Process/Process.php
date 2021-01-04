@@ -213,7 +213,7 @@ class Process extends AbstractProcess
             unset($process[$name]);
             \processFile()->setContent($process);
             unset($this->process[$name]);
-            return ['code' => 0, 'msg' => "{$name}删除成功!"];
+            return ['code' => 0, 'msg' => "{$name}删除成功"];
         } else {
             return $result;
         }
@@ -229,14 +229,14 @@ class Process extends AbstractProcess
             ];
             $process = \processFile()->getContent();
             if (isset($process[$config['name']])) {
-                return ['code' => 2, 'msg' => "{$config['name']}已存在!"];
+                return ['code' => 2, 'msg' => "{$config['name']}已存在"];
             }
             $process[$config['name']] = $conf;
             $this->create($config['name'], $conf);
             \processFile()->setContent($process);
             return ['code' => 0, 'msg' => '添加成功'];
         } else {
-            return ['code' => 2, 'msg' => "非法请求!"];
+            return ['code' => 2, 'msg' => "非法请求"];
         }
     }
 

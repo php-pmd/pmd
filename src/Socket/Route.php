@@ -4,7 +4,6 @@ namespace PhpPmd\Pmd\Socket;
 
 use PhpPmd\Pmd\Process\ProcessInterface;
 use PhpPmd\Pmd\Socket\Business\AddProcess;
-use PhpPmd\Pmd\Socket\Business\CreateToken;
 use PhpPmd\Pmd\Socket\Business\DeleteProcess;
 use PhpPmd\Pmd\Socket\Business\ProcessList;
 use PhpPmd\Pmd\Socket\Business\RestartallProcess;
@@ -19,7 +18,6 @@ use React\Socket\ConnectionInterface;
 class Route
 {
     public static $route = [
-        'create_token' => CreateToken::class,
         'setting' => Setting::class,
         'process_list' => ProcessList::class,
         'start' => StartProcess::class,
