@@ -18,12 +18,16 @@ class HttpServer
         $this->port = $port;
         Route::get('/', 'Controller\\IndexController@index');
         Route::get('/tail', 'Controller\\IndexController@tail');
+        Route::get('/set', 'Controller\\IndexController@set');
+        Route::post('/addSocket', 'Controller\\SocketController@add');
+        Route::post('/delSocket', 'Controller\\SocketController@del');
         Route::post('/socketList', 'Controller\\SocketController@list');
         Route::post('/processList', 'Controller\\ProcessController@list');
         Route::post('/add', 'Controller\\ProcessController@add');
         Route::post('/start', 'Controller\\ProcessController@start');
         Route::post('/stop', 'Controller\\ProcessController@stop');
         Route::post('/delete', 'Controller\\ProcessController@delete');
+        Route::post('/clearLog', 'Controller\\ProcessController@clearLog');
         Route::post('/restart', 'Controller\\ProcessController@restart');
         Route::post('/stopall', 'Controller\\ProcessController@stopall');
         Route::post('/restartall', 'Controller\\ProcessController@restartall');

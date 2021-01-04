@@ -24,6 +24,9 @@ window.onload = function () {
             }, 1000);
         },
         methods: {
+            set: function () {
+                window.location.href = "/set";
+            },
             tail: function (name) {
                 window.open("/tail?address=" + this.address + "&name=" + name);
             },
@@ -37,7 +40,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error;
+                    this.tips = error.bodyText;
                 });
             },
             stopall: function () {
@@ -50,7 +53,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error;
+                    this.tips = error.bodyText;
                 });
             },
             restart: function (name) {
@@ -64,7 +67,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error;
+                    this.tips = error.bodyText;
                 });
             },
             start: function (name) {
@@ -78,7 +81,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error;
+                    this.tips = error.bodyText;
                 });
             },
             stop: function (name) {
@@ -92,7 +95,21 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error;
+                    this.tips = error.bodyText;
+                });
+            },
+            clearLog: function (name) {
+                this.$http.post('/clearLog', {
+                    name: name,
+                    address: this.address
+                }).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
+                        this.tips = response.data.msg;
+                    } else {
+                        this.tips = response.data.msg;
+                    }
+                }).catch(function (error) {
+                    this.tips = error.bodyText;
                 });
             },
             del: function (name) {
@@ -106,7 +123,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error;
+                    this.tips = error.bodyText;
                 });
             },
             addProcess: function () {
@@ -120,7 +137,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error;
+                    this.tips = error.bodyText;
                 });
             },
             selectQuery: function () {
@@ -132,6 +149,7 @@ window.onload = function () {
                         if (this.address === null) {
                             for (key in response.data.data) {
                                 this.address = key;
+                                this.getProcessList();
                                 break;
                             }
                         }
@@ -140,7 +158,7 @@ window.onload = function () {
                         this.tips = response.data.msg;
                     }
                 }).catch(function (error) {
-                    this.tips = error;
+                    this.tips = error.bodyText;
                 });
             },
             getProcessList: function () {
@@ -154,7 +172,7 @@ window.onload = function () {
                             this.tips = response.data.msg;
                         }
                     }).catch(function (error) {
-                        this.tips = error;
+                        this.tips = error.bodyText;
                     });
                 }
             },

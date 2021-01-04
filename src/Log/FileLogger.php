@@ -9,7 +9,7 @@ class FileLogger implements LoggerInterface
     public function __construct($name)
     {
         $this->file = $name;
-        $dir = PMD_HOME . DIRECTORY_SEPARATOR . "{$name}" . DIRECTORY_SEPARATOR;
+        $dir = PMD_HOME . DIRECTORY_SEPARATOR . "log" . DIRECTORY_SEPARATOR;
         if (!is_dir($dir)) {
             $res = mkdir($dir, 0777, true);
             if (!$res) {
@@ -20,7 +20,7 @@ class FileLogger implements LoggerInterface
 
     protected function getFile()
     {
-        $file = PMD_HOME . DIRECTORY_SEPARATOR . $this->file . DIRECTORY_SEPARATOR . date('Y-m') . '.log';
+        $file = PMD_HOME . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . "{$this->file}.log";
         if (!file_exists($file)) \touch($file);
         return $file;
     }

@@ -134,6 +134,18 @@ class Pmd
         $opcode = $command->parser();
         $command = $opcode['opcode'];
         switch ($command) {
+            case 'process':
+                if (!\pidFile()->isRunning()) {
+                    \logger()->writeln("PMD is not running.");
+                    break;
+                }
+                $config = \configFile()->getContent();
+                $socket = $config['socket'];
+                \logger()->writeln("ip:\t\t<g>{$socket['ip']}</g>");
+                \logger()->writeln("port:\t\t<g>{$socket['port']}</g>");
+                \logger()->writeln("app_key:\t<g>{$socket['app_key']}</g>");
+                \logger()->writeln("app_secret:\t<g>{$socket['app_secret']}</g>");
+                break;
             case 'help':
                 \logger()->writeln(str_replace('{{version}}', static::$version, $opcode['data']));
                 break;
@@ -270,6 +282,7 @@ class Pmd
                 $socket_port = $config['http']['port'] ?? 2021;
                 $socket_port += 1;
                 $config['socket'] = [
+                    'name' => 'local',
                     'ip' => $ip,
                     'port' => $socket_port,
                     'app_key' => \uuid('k-'),

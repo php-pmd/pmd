@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title><?=$site_title?> <?=$version?></title>
@@ -8,6 +8,7 @@
     <meta http-equiv="Cache-Control" content="max-age=86400"/>
     <link rel="stylesheet" href="/static/style.css">
     <script src="/static/vue-v2.6.11.js"></script>
+    <script src="/static/vue-resource-1.5.1.min.js"></script>
 </head>
 <body>
 <div id="wrapper" v-cloak>
@@ -16,114 +17,41 @@
             <span><h1><?=$site_title?></h1></span>
         </div>
         <div class="right">
-            <span v-if="message != ''">{{message}}</span>
+            服务IP:<span><?=$local_ip?></span> <span v-if="message != ''">{{message}}</span>
         </div>
     </div>
     <hr>
     <div>
-        <!--<div class="status_msg"></div>-->
+        <div class="status_msg" v-if="tips!==''">{{tips}}</div>
         <ul class="clr" id="buttons">
-            <div class="left">
-                <li id="refresh"><a href="javascript:window.location.reload()">
-                    <button>刷新</button>
-                </a></li>
-                <li id="restart_all"><a href="index.html?action=restartall">
-                    <button>全部重启</button>
-                </a></li>
-                <li id="stop_all"><a href="index.html?action=stopall">
-                    <button>全部停止</button>
-                </a></li>
-            </div>
             <div class="right">
-                <li>
-                    <select>
-                        <?php
-                        foreach($socketList as $address=>$socket){
-                        echo "
-                        <option>{$address}</option>
-                        ";
-                        }
-                        ?>
-                    </select>
+                <li id="set">
+                    <button v-on:click="back()">返回</button>
                 </li>
-                <li id="set"><a href="index.html?action=add">
-                    <button>设置</button>
-                </a></li>
             </div>
         </ul>
         <table cellspacing="1">
             <thead>
             <tr>
-                <th class="name">名称</th>
-                <th class="desc">描述</th>
-                <th class="processnum">进程数</th>
-                <th class="state">状态</th>
-                <th class="action">操作</th>
+                <th class="s_name">Name</th>
+                <th class="ip">IP</th>
+                <th class="port">Port</th>
+                <th class="app_key">App key</th>
+                <th class="app_secret">App secret</th>
+                <th class="app_action">操作</th>
             </tr>
             </thead>
             <tbody>
-            <tr class="">
-                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
-                <td><span>pid 138, 运行时长 0:00:38</span></td>
-                <td class="processnum"><span>10</span></td>
-                <td class="status"><span class="statusrunning">运行中</span></td>
+            <tr v-for="(socket, addr) in socketList">
+                <td><span>{{socket.name}}</span></td>
+                <td><span>{{socket.ip}}</span></td>
+                <td><span>{{socket.port}}</span></td>
+                <td><span>{{socket.app_key}}</span></td>
+                <td><span>{{socket.app_secret}}</span></td>
                 <td class="action">
                     <ul>
                         <li>
-                            <a href="index.html?processname=workerman&amp;action=restart" name="Restart">重启</a>
-                        </li>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=stop" name="Stop">停止</a>
-                        </li>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-            <tr class="">
-                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
-                <td><span>Dec 25 02:34 PM</span></td>
-                <td class="processnum"><span>0</span></td>
-                <td class="status"><span class="statusnominal">已停止</span></td>
-                <td class="action">
-                    <ul>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=start" name="Start">开启</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Delete" target="_blank">删除</a>
-                        </li>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
-                        </li>
-                    </ul>
-                </td>
-            </tr>
-            <tr class="">
-                <td><a href="tail.html?processname=workerman" target="_blank">workerman</a></td>
-                <td><span>Dec 25 02:34 PM</span></td>
-                <td class="processnum"><span>0</span></td>
-                <td class="status"><span class="statuserror">异常</span></td>
-                <td class="action">
-                    <ul>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=start" name="Start">开启</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Delete" target="_blank">删除</a>
-                        </li>
-                        <li>
-                            <a href="index.html?processname=workerman&amp;action=clearlog" name="Clear Log">清除日志</a>
-                        </li>
-                        <li>
-                            <a href="logtail/workerman" name="Tail -f" target="_blank">查看日志</a>
+                            <a href="javascript:void(0);" v-on:click="del(addr)">删除</a>
                         </li>
                     </ul>
                 </td>
@@ -133,31 +61,41 @@
         <hr>
         <table class="addprocess" cellspacing="1">
             <tr>
-                <th class="name">
-                    名称
-                </th>
-                <th class="cmd">命令</th>
-                <th class="number">进程数</th>
-                <th>自启</th>
-                <th>操作</th>
+                <th class="s_name">Name</th>
+                <th class="ip">IP</th>
+                <th class="port">Port</th>
+                <th class="app_key">App key</th>
+                <th class="app_secret">App secret</th>
+                <th class="app_action">操作</th>
             </tr>
             <tr>
-                <td class="name">
-                    <input type="text" class="input-text" onkeyup="value=value.replace(/[^\w]/ig,'')" maxlength=32
-                           value="HelloPmd">
-                </td>
-                <td class="cmd">
-                    <input type="text" class="input-text" onkeyup="value=value.replace(/[^\w\.\/\s\']/ig,'')"
-                           maxlength=128 value="echo 'Hello PMD'"/></td>
-                <td class="number">
-                    <input class="input-text" onkeyup="this.value=this.value.replace(/\D/g,'')"
-                           onchange="this.value=this.value.replace(/\D/g,'')" value="4" maxlength="2"></td>
                 <td>
-                    <input type="radio" name="startauto" checked value="1"/>开
-                    <input type="radio" name="startauto" value="0"/>关
+                    <label>
+                        <input type="text" v-model='add.name' class="input-text" maxlength=15/>
+                    </label>
                 </td>
                 <td>
-                    <button>添加</button>
+                    <label>
+                        <input type="text" v-model='add.ip' class="input-text" maxlength=15/>
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        <input type="text" v-model='add.port' class="input-text" maxlength=5/>
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        <input class="input-text" v-model='add.app_key' maxlength="38">
+                    </label>
+                </td>
+                <td>
+                    <label>
+                        <input class="input-text" v-model='add.app_secret' maxlength="38">
+                    </label>
+                </td>
+                <td>
+                    <button v-on:click="addSocket">添加</button>
                 </td>
             </tr>
         </table>
@@ -165,7 +103,8 @@
 </div>
 <div class="clr" id="footer">
     <div class="left">
-        <a href="https://github.com/php-pmd/pmd" target="_blank"><?=$site_title?> <?=$version?></a>, Theme by supervisor.
+        <a href="https://github.com/php-pmd/pmd" target="_blank"><?=$site_title?> <?=$version?></a>, Theme by
+        supervisor.
     </div>
     <div class="right">
         <strong>Copyright © <a href="https://github.com/imparting" target="_blank">Imparting</a> All rights

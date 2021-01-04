@@ -195,6 +195,37 @@ th.action {
     max-width: 40%;
 }
 
+th.s_name {
+    width: 10%;
+    max-width: 10%;
+}
+th.ip {
+    width: 15%;
+    max-width: 15%;
+}
+
+th.port {
+    width: 10%;
+    max-width: 10%;
+}
+
+th.app_key {
+    width: 25%;
+    max-width: 25%;
+    text-align: center;
+}
+
+th.app_secret {
+    width: 25%;
+    max-width: 25%;
+    text-align: center;
+}
+
+th.app_action {
+    width: 10%;
+    max-width: 10%;
+}
+
 td, th {
     padding: 4px 8px;
     border-bottom: 1px solid #fff;

@@ -13,6 +13,11 @@ class IndexController extends BaseController
         return $this->view('index.html');
     }
 
+    public function set(ServerRequestInterface $request)
+    {
+        return $this->view('set.html');
+    }
+
     public function tail(ServerRequestInterface $request)
     {
         $input = $this->get($request);

@@ -40,6 +40,12 @@ class ProcessBusiness extends SocketBusiness
         return $this->send($address, $cmd, $callback);
     }
 
+    public function clearLog($address, $name, $callback)
+    {
+        $cmd = ['cmd' => 'clearLog', 'data' => ['name' => $name]];
+        return $this->send($address, $cmd, $callback);
+    }
+
     public function stopall($address, $callback)
     {
         $cmd = ['cmd' => 'stopall'];

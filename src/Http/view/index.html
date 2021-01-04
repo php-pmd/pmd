@@ -24,7 +24,7 @@
     <div>
         <div class="status_msg" v-if="tips!==''">{{tips}}</div>
         <ul class="clr" id="buttons">
-            <div class="left">
+            <div class="left" v-if="processList.length > 0">
                 <li id="restart_all">
                     <button v-on:click="restartall">全部重启</button>
                 </li>
@@ -34,14 +34,17 @@
             </div>
             <div class="right">
                 <li>
-                    <select v-on:change="selectQuery" v-model="address">
-                        <option v-for="(socket, addr) in socketList" v-bind:value="addr" v-bind:checked="address==addr">
-                            {{ addr }}
-                        </option>
-                    </select>
+                    <label>
+                        <select v-on:change="selectQuery" v-model="address">
+                            <option v-for="(socket, addr) in socketList" v-bind:value="addr"
+                                    v-bind:checked="address==addr">
+                                {{ socket.name }}({{ addr }})
+                            </option>
+                        </select>
+                    </label>
                 </li>
                 <li id="set">
-                    <button>设置</button>
+                    <button v-on:click="set()">设置</button>
                 </li>
             </div>
         </ul>
@@ -85,7 +88,7 @@
                             <a href="javascript:void(0);" v-on:click="del(name)">删除</a>
                         </li>
                         <li>
-                            <a href="javascript:void(0);">清除日志</a>
+                            <a href="javascript:void(0);" v-on:click="clearLog(name)">清除日志</a>
                         </li>
                         <li>
                             <a href="javascript:void(0);" v-on:click="tail(name)">查看日志</a>
@@ -108,19 +111,30 @@
             </tr>
             <tr>
                 <td class="name">
-                    <input type="text" v-model='add.name' class="input-text" onkeyup="value=value.replace(/[^\w]/ig,'')"
-                           maxlength=32>
+                    <label>
+                        <input type="text" v-model='add.name' class="input-text"
+                               onkeyup="value=value.replace(/[^\w]/ig,'')"
+                               maxlength=32/>
+                    </label>
                 </td>
                 <td class="cmd">
-                    <input type="text" v-model='add.cmd' class="input-text"
-                           onkeyup="value=value.replace(/[^\w\.\/\s\'-]/ig,'')"
-                           maxlength=128/></td>
+                    <label>
+                        <input type="text" v-model='add.cmd' class="input-text"
+                               onkeyup="value=value.replace(/[^\w\.\/\s\'-]/ig,'')"
+                               maxlength=128/>
+                    </label></td>
                 <td class="number">
-                    <input class="input-text" v-model='add.count' onkeyup="this.value=this.value.replace(/\D/g,'')"
-                           onchange="this.value=this.value.replace(/\D/g,'')" maxlength="2"></td>
+                    <label>
+                        <input class="input-text" v-model='add.count' onkeyup="this.value=this.value.replace(/\D/g,'')"
+                               onchange="this.value=this.value.replace(/\D/g,'')" maxlength="2">
+                    </label></td>
                 <td>
-                    <input type="radio" v-model='add.autostart' checked value="1"/>开
-                    <input type="radio" v-model='add.autostart' value="0"/>关
+                    <label>
+                        <input type="radio" v-model='add.autostart' checked value="1"/>
+                    </label>开
+                    <label>
+                        <input type="radio" v-model='add.autostart' value="0"/>
+                    </label>关
                 </td>
                 <td>
                     <button v-on:click="addProcess">添加</button>

@@ -20,7 +20,7 @@ class Command
                 return [
                     'opcode' => 'version',
                 ];
-            } elseif (in_array($argv1, ['start', 'stop', 'restart'])) {
+            } elseif (in_array($argv1, ['start', 'stop', 'restart', 'process'])) {
                 if ($argv1 == 'stop') {
                     return [
                         'opcode' => $argv1
@@ -65,6 +65,7 @@ class Command
   <g>start</g>\t\tStart PMD.
   <g>restart</g>\tRestart PMD.
   <g>stop</g>\t\tStop PMD.
+  <g>process</g>\tProcess config in PMD.
 <y>Options</y>:
   <g>-u, --user</g>\tSet account.
   <g>-p, --pass</g>\tSet password.

@@ -213,6 +213,7 @@ class Process extends AbstractProcess
             unset($process[$name]);
             \processFile()->setContent($process);
             unset($this->process[$name]);
+            $this->clearLog($name);
             return ['code' => 0, 'msg' => "{$name}删除成功"];
         } else {
             return $result;
@@ -242,20 +243,18 @@ class Process extends AbstractProcess
 
     public function clearLog($name)
     {
+        $file = PMD_HOME . DIRECTORY_SEPARATOR . "log" . DIRECTORY_SEPARATOR . "{$name}.log";
+        if (unlink($file)) {
+            return ['code' => 0, 'msg' => '清理成功'];
+        } else {
+            return ['code' => 2, 'msg' => '清理失败'];
+        }
     }
 
     public function tail($name)
     {
-        $file = PMD_HOME . DIRECTORY_SEPARATOR . "{$name}" . DIRECTORY_SEPARATOR . date('Y-m') . '.log';
+        $file = PMD_HOME . DIRECTORY_SEPARATOR . "log" . DIRECTORY_SEPARATOR . "{$name}.log";
         if (is_file($file)) return @file_get_contents($file);
         else return '';
-    }
-
-    public function set()
-    {
-    }
-
-    public function saveSet()
-    {
     }
 }

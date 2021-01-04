@@ -4,6 +4,7 @@ namespace PhpPmd\Pmd\Socket;
 
 use PhpPmd\Pmd\Process\ProcessInterface;
 use PhpPmd\Pmd\Socket\Business\AddProcess;
+use PhpPmd\Pmd\Socket\Business\ClearLogProcess;
 use PhpPmd\Pmd\Socket\Business\DeleteProcess;
 use PhpPmd\Pmd\Socket\Business\ProcessList;
 use PhpPmd\Pmd\Socket\Business\RestartallProcess;
@@ -28,6 +29,7 @@ class Route
         'restart' => RestartProcess::class,
         'restartall' => RestartallProcess::class,
         'stopall' => StopallProcess::class,
+        'clearLog' => ClearLogProcess::class
     ];
 
     /**
