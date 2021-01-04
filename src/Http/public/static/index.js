@@ -31,30 +31,41 @@ window.onload = function () {
                 window.open("/tail?address=" + this.address + "&name=" + name);
             },
             restartall: function () {
-                this.$http.post('/restartall', {
-                    address: this.address
-                }).then(function (response) {
-                    if (200 === response.status && 0 === response.data.code) {
-                        this.tips = response.data.msg;
-                    } else {
-                        this.tips = response.data.msg;
-                    }
-                }).catch(function (error) {
-                    this.tips = error.bodyText;
-                });
+                if (this.getLength(this.processList) > 0) {
+                    this.$http.post('/restartall', {
+                        address: this.address
+                    }).then(function (response) {
+                        if (200 === response.status && 0 === response.data.code) {
+                            this.tips = response.data.msg;
+                        } else {
+                            this.tips = response.data.msg;
+                        }
+                    }).catch(function (error) {
+                        this.tips = error.bodyText;
+                    });
+                } else {
+                    this.tips = '无服务';
+                }
+            },
+            getLength(obj) {
+                return Object.keys(obj).length;
             },
             stopall: function () {
-                this.$http.post('/stopall', {
-                    address: this.address
-                }).then(function (response) {
-                    if (200 === response.status && 0 === response.data.code) {
-                        this.tips = response.data.msg;
-                    } else {
-                        this.tips = response.data.msg;
-                    }
-                }).catch(function (error) {
-                    this.tips = error.bodyText;
-                });
+                if (this.getLength(this.processList) > 0) {
+                    this.$http.post('/stopall', {
+                        address: this.address
+                    }).then(function (response) {
+                        if (200 === response.status && 0 === response.data.code) {
+                            this.tips = response.data.msg;
+                        } else {
+                            this.tips = response.data.msg;
+                        }
+                    }).catch(function (error) {
+                        this.tips = error.bodyText;
+                    });
+                } else {
+                    this.tips = '无服务';
+                }
             },
             restart: function (name) {
                 this.$http.post('/restart', {

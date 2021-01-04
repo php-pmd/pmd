@@ -22,9 +22,9 @@
     </div>
     <hr>
     <div>
-        <div class="status_msg" v-if="tips!==''">{{tips}}</div>
+        <div class="status_msg" v-if="tips!=''">{{tips}}</div>
         <ul class="clr" id="buttons">
-            <div class="left" v-if="processList.length > 0">
+            <div class="left">
                 <li id="restart_all">
                     <button v-on:click="restartall">全部重启</button>
                 </li>
