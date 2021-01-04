@@ -21,7 +21,7 @@ class RemoteSocketConnector
     public static function connector($remoteAddress)
     {
         if (null == static::$pingTimer) {
-            static::$pingTimer = \loop()->addPeriodicTimer(30, function () {
+            static::$pingTimer = \loop()->addPeriodicTimer(6, function () {
                 foreach (static::$remoteSocketConnector as $remoteAddress => $remoteSocketConnector) {
                     if ($remoteSocketConnector['live_state'] == 1) {
                         $connection = $remoteSocketConnector['socket'];
@@ -31,7 +31,7 @@ class RemoteSocketConnector
                             if (isset($data['pong'])) static::$remoteSocketConnector[$remoteAddress]['live_last_time'] = time();
                         });
                     }
-                    if (time() > static::$remoteSocketConnector[$remoteAddress]['live_last_time'] + 120) {
+                    if (time() > static::$remoteSocketConnector[$remoteAddress]['live_last_time'] + 45) {
                         static::$remoteSocketConnector[$remoteAddress]['live_state'] = 0;
                     }
                 }

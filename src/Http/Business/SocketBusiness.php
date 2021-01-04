@@ -34,7 +34,8 @@ class SocketBusiness
                     return $callback(['code' => 1, 'msg' => $throwable->getMessage()]);
                 }
             } else {
-                return $callback(['code' => 1, 'msg' => "{$remoteAddress} link fail."]);
+                RemoteSocketConnector::connector($remoteAddress);
+                return $callback(['code' => 1, 'msg' => "Loading..."]);
             }
         } else {
             return $callback(['code' => 1, 'msg' => "Loading..."]);
