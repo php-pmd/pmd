@@ -58,7 +58,7 @@ window.onload = function () {
                         if (200 === response.status && 0 === response.data.code) {
                             this.tips = response.data.msg;
                         } else {
-                            this.tips = response.data.msg;
+                            this.tips = response.data.msg !== undefined ? response.data.msg : '';
                         }
                     }).catch(function (error) {
                         this.tips = error.bodyText;
@@ -75,7 +75,7 @@ window.onload = function () {
                     if (200 === response.status && 0 === response.data.code) {
                         this.tips = response.data.msg;
                     } else {
-                        this.tips = response.data.msg;
+                        this.tips = response.data.msg !== undefined ? response.data.msg : '';
                     }
                 }).catch(function (error) {
                     this.tips = error.bodyText;
@@ -89,7 +89,7 @@ window.onload = function () {
                     if (200 === response.status && 0 === response.data.code) {
                         this.tips = response.data.msg;
                     } else {
-                        this.tips = response.data.msg;
+                        this.tips = response.data.msg !== undefined ? response.data.msg : '';
                     }
                 }).catch(function (error) {
                     this.tips = error.bodyText;
@@ -103,7 +103,7 @@ window.onload = function () {
                     if (200 === response.status && 0 === response.data.code) {
                         this.tips = response.data.msg;
                     } else {
-                        this.tips = response.data.msg;
+                        this.tips = response.data.msg !== undefined ? response.data.msg : '';
                     }
                 }).catch(function (error) {
                     this.tips = error.bodyText;
@@ -117,7 +117,7 @@ window.onload = function () {
                     if (200 === response.status && 0 === response.data.code) {
                         this.tips = response.data.msg;
                     } else {
-                        this.tips = response.data.msg;
+                        this.tips = response.data.msg !== undefined ? response.data.msg : '';
                     }
                 }).catch(function (error) {
                     this.tips = error.bodyText;
@@ -131,7 +131,7 @@ window.onload = function () {
                     if (200 === response.status && 0 === response.data.code) {
                         this.tips = response.data.msg;
                     } else {
-                        this.tips = response.data.msg;
+                        this.tips = response.data.msg !== undefined ? response.data.msg : '';
                     }
                 }).catch(function (error) {
                     this.tips = error.bodyText;
@@ -145,7 +145,7 @@ window.onload = function () {
                     if (200 === response.status && 0 === response.data.code) {
                         this.tips = response.data.msg;
                     } else {
-                        this.tips = response.data.msg;
+                        this.tips = response.data.msg !== undefined ? response.data.msg : '';
                     }
                 }).catch(function (error) {
                     this.tips = error.bodyText;
@@ -166,7 +166,7 @@ window.onload = function () {
                         }
                         this.socketList = response.data.data;
                     } else {
-                        this.tips = response.data.msg;
+                        this.tips = response.data.msg !== undefined ? response.data.msg : '';
                     }
                 }).catch(function (error) {
                     this.tips = error.bodyText;
@@ -180,7 +180,7 @@ window.onload = function () {
                         if (200 === response.status && response.data.code === 0 && response.data.data.error === undefined) {
                             this.processList = response.data.data;
                         } else {
-                            this.tips = response.data.msg;
+                            this.tips = response.data.msg !== undefined ? response.data.msg : '';
                         }
                     }).catch(function (error) {
                         this.tips = error.bodyText;
