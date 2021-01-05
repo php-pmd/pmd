@@ -199,6 +199,7 @@ th.s_name {
     width: 10%;
     max-width: 10%;
 }
+
 th.ip {
     width: 15%;
     max-width: 15%;
@@ -232,6 +233,7 @@ td, th {
 }
 
 tr td {
+    height: 32px;
     background-color: #FBFBFB;
 }
 
@@ -275,6 +277,11 @@ tr.shade td {
     opacity: 0.7;
     color: #000;
     font-size: 95%;
+}
+
+.process {
+    max-height: 32px;
+    overflow-y: scroll;
 }
 
 .statusnominal {

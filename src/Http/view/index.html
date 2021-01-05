@@ -62,10 +62,12 @@
             <tr v-for="(process, name) in processList">
                 <td><a href="javascript:void(0);" v-bind:title="process.cmd">{{name}}</a></td>
                 <td>
-                    <span v-if="process.pids.length > 0" v-bind:title="process.pids">运行时长:{{timeToString(process.runtime)}}<br/>PID:{{process.pids}}</span>
-                    <span v-else-if="process.pids.length === 0 && process.error_msg != ''">{{process.error_msg}}</span>
-                    <span v-else-if="process.pids.length === 0 && process.stop_time !== 0">停止时间 {{timestampToString(process.stop_time)}}</span>
-                    <span v-else="process.pids.length === 0 && !process.stop_time">未曾运行</span>
+                    <div class="process">
+                        <span v-if="process.pids.length > 0" v-bind:title="process.pids">运行时长:{{timeToString(process.runtime)}}<br/>PID:{{process.pids}}</span>
+                        <span v-else-if="process.pids.length === 0 && process.error_msg != ''">{{process.error_msg}}</span>
+                        <span v-else-if="process.pids.length === 0 && process.stop_time !== 0">停止时间 {{timestampToString(process.stop_time)}}</span>
+                        <span v-else="process.pids.length === 0 && !process.stop_time"> -- </span>
+                    </div>
                 </td>
                 <td class="processnum"><span>{{process.pids.length}}</span></td>
                 <td class="status">
