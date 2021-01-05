@@ -3,6 +3,7 @@ window.onload = function () {
         el: '#wrapper',
         data: {
             tips: "",
+            responseTime: '',
             nowTime: new Date().toLocaleString(),
             message: '页面加载于 ' + new Date().toLocaleString(),
             address: '',
@@ -238,7 +239,13 @@ window.onload = function () {
                 }
                 return result;
             }
+        },
+        watch: {
+            tips: {
+                handler() {
+                    this.responseTime = new Date().toLocaleString();
+                },
+            }
         }
-
     });
 };

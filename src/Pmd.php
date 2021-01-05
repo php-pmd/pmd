@@ -24,7 +24,7 @@ class Pmd
      * @var Container $container
      */
     public static $container;
-    protected static $version = 'v0.0.1';
+    protected static $version = 'v0.1.1';
     protected static $http_enable = false;
     protected static $local_ip = '';
 
@@ -228,11 +228,11 @@ class Pmd
             case \SIGHUP:
                 $allProcess = \socket()->getProcess()->getAllProcess();
                 $start_time = time();
-                \loop()->addPeriodicTimer(0.3, function ($timer) use ($allProcess, $start_time) {
-                    /**
-                     * @var Process $process
-                     */
-                    foreach ($allProcess as $pid => $process) {
+                /**
+                 * @var Process $process
+                 */
+                foreach ($allProcess as $pid => $process) {
+                    \loop()->addPeriodicTimer(0.3, function ($timer) use ($pid, $process, $start_time) {
                         if ($process->isRunning()) {
                             if (time() - $start_time >= 1) {
                                 $process->terminate(SIGTERM);
@@ -245,8 +245,8 @@ class Pmd
                             \socket()->getProcess()->unsetProcess($pid);
                             \loop()->cancelTimer($timer);
                         }
-                    }
-                });
+                    });
+                }
                 \loop()->addPeriodicTimer(0.3, function ($timer) {
                     if (count(\socket()->getProcess()->getAllProcess()) == 0) {
                         \loop()->cancelTimer($timer);

@@ -12,18 +12,22 @@ class Process extends AbstractProcess
         try {
             $config = \processFile()->getContent();
             if (isset($config[$name])) {
-                $count = $config[$name]['count'] ?? 1;
-                for ($i = 0; $i < $count; $i++) {
-                    $this->createOne($name, $config[$name]);
+                if (count($this->process[$name]['pids']) > 0) {
+                    return ['code' => 2, 'msg' => "{$name} 服务已启动"];
+                } else {
+                    $count = $config[$name]['count'] ?? 1;
+                    for ($i = 0; $i < $count; $i++) {
+                        $this->createOne($name, $config[$name]);
+                    }
+                    return ['code' => 0, 'msg' => "{$name} 启动命令发送成功"];
                 }
-                return ['code' => 0, 'msg' => '启动命令发送成功'];
             } else {
-                return ['code' => 2, 'msg' => '配置不存在'];
+                return ['code' => 2, 'msg' => "{$name} 配置不存在"];
             }
         } catch (\Throwable $throwable) {
             $this->process[$name]['error_msg'] = $throwable->getMessage();
             trigger_error("[{$config['cmd']}] run fail.");
-            return ['code' => 2, 'msg' => $throwable->getMessage()];
+            return ['code' => 2, 'msg' => "{$name} " . $throwable->getMessage()];
         }
     }
 
@@ -46,7 +50,7 @@ class Process extends AbstractProcess
                     $this->createOne($name, $config);
                 } catch (\Throwable $throwable) {
                     $this->process[$name]['error_msg'] = $throwable->getMessage();
-                    trigger_error("[{$config['cmd']}] run fail.");
+                    trigger_error("{$name}  [{$config['cmd']}] run fail.");
                     break;
                 }
             }
@@ -77,28 +81,35 @@ class Process extends AbstractProcess
                 $fileLogger->error($data);
             });
             $worker->on('exit', function ($exitCode) use ($fileLogger, $name, $pid) {
-                if ($exitCode === 0) {
-                    $fileLogger->info("{$name}[{$pid}] exitCode:{$exitCode}");
-                    \logger()->info("{$name}[{$pid}] exitCode:{$exitCode}");
-                } elseif ($exitCode == '' || $exitCode == 137) {
-                    $fileLogger->info("{$name} kill exitCode:{$exitCode}");
-                    \logger()->info("{$name} kill exitCode:{$exitCode}");
-                    $this->process[$name]['error_msg'] = "被外界终止";
+                if ($exitCode == 0) {
+                    $fileLogger->write("{$name} [{$pid}] exitCode:{$exitCode}");
+                    \logger()->info("{$name} [{$pid}] exitCode:{$exitCode}");
+                } elseif ($exitCode == 137) {
+                    $fileLogger->write("{$name}  kill exitCode:{$exitCode}");
+                    \logger()->info("{$name}  kill exitCode:{$exitCode}");
+                    $this->process[$name]['error_msg'] = "被强行终止";
                 } elseif ($exitCode == 127) {
-                    $fileLogger->info("{$name} not running exitCode:{$exitCode}");
-                    \logger()->info("{$name} not running exitCode:{$exitCode}");
+                    $fileLogger->write("{$name}  not running exitCode:{$exitCode}");
+                    \logger()->info("{$name}  not running exitCode:{$exitCode}");
                     $this->process[$name]['error_msg'] = "进程命令错误";
                 } else {
-                    $fileLogger->error("{$name}[{$pid}] exitCode:{$exitCode}");
-                    \logger()->error("{$name}[{$pid}] exitCode:{$exitCode}");
+                    $fileLogger->write("{$name} [{$pid}] exitCode:{$exitCode}");
+                    \logger()->error("{$name} [{$pid}] exitCode:{$exitCode}");
                     $this->process[$name]['error_msg'] = "进程异常 exit code:{$exitCode}";
                 }
-                $this->unsetProcess($pid);
+                unset($this->allProcess[$pid]);
+                foreach ($this->process[$name]['pids'] as $index => $item) {
+                    if ($item == $pid) {
+                        unset($this->process[$name]['pids'][$index]);
+                        break;
+                    }
+                }
                 if (count($this->process[$name]['pids']) == 0) {
                     $this->process[$name]['pids'] = [];
                     $this->process[$name]['runtime'] = 0;
                     $this->process[$name]['stop_time'] = time();
                 }
+                $fileLogger = null;
             });
             $this->process[$name]['pids'][] = $pid;
             $this->allProcess[$pid] = $worker;
@@ -117,7 +128,7 @@ class Process extends AbstractProcess
     {
         $result = $this->stop($name);
         if ($result['code'] == 2) {
-            return ['code' => 2, 'msg' => '重启失败'];
+            return ['code' => 2, 'msg' => "{$name} 重启失败"];
         } else {
             $start_time = time();
             \loop()->addPeriodicTimer(0.1, function ($timer) use ($start_time, $name) {
@@ -129,7 +140,7 @@ class Process extends AbstractProcess
                     \loop()->cancelTimer($timer);
                 }
             });
-            return ['code' => 0, 'msg' => '重启命令发送成功'];
+            return ['code' => 0, 'msg' => "{$name} 重启命令发送成功"];
         }
     }
 
@@ -158,36 +169,46 @@ class Process extends AbstractProcess
             try {
                 if (isset($this->process[$name]['pids']) && count($this->process[$name]['pids']) > 0) {
                     $start_time = time();
-                    \loop()->addPeriodicTimer(0.3, function ($timer) use ($name, $start_time) {
-                        foreach ($this->process[$name]['pids'] as $index => $pid) {
+                    foreach ($this->process[$name]['pids'] as $index => $pid) {
+                        \loop()->addPeriodicTimer(0.3, function ($timer) use ($name, $pid, $start_time) {
                             /**
                              * @var \React\ChildProcess\Process $process
                              */
-                            $process = $this->allProcess[$pid];
-                            if ($process->isRunning()) {
-                                if (time() - $start_time >= 1) {
-                                    $process->terminate(SIGTERM);
-                                } elseif (time() - $start_time >= 2) {
-                                    $process->terminate(SIGKILL);
+                            $process = $this->allProcess[$pid] ?? null;
+                            if ($process) {
+                                if ($process->isRunning()) {
+                                    if (time() - $start_time >= 1) {
+                                        $process->terminate(SIGTERM);
+                                    } elseif (time() - $start_time >= 2) {
+                                        $process->terminate(SIGKILL);
+                                    } else {
+                                        $process->terminate(SIGINT);
+                                    }
                                 } else {
-                                    $process->terminate(SIGINT);
+                                    unset($this->allProcess[$pid]);
+                                    foreach ($this->process[$name]['pids'] as $index => $item) {
+                                        if ($item == $pid) {
+                                            unset($this->process[$name]['pids'][$index]);
+                                            break;
+                                        }
+                                    }
+                                    \loop()->cancelTimer($timer);
                                 }
                             } else {
-                                $this->unsetProcess($pid);
                                 \loop()->cancelTimer($timer);
                             }
-                        }
-                    });
+                        });
+                    }
                 }
-                return ['code' => 0, 'msg' => '停止命令发送成功'];
+                return ['code' => 0, 'msg' => "{$name} 停止命令发送成功"];
             } catch (\Throwable $throwable) {
                 $this->process[$name]['error_msg'] = $throwable->getMessage();
                 trigger_error("[{$name}] stop fail.");
-                return ['code' => 2, 'msg' => $throwable->getMessage()];
+                return ['code' => 2, 'msg' => $name . $throwable->getMessage()];
             }
 
         } else {
-            return ['code' => 2, 'msg' => '服务不存在'];
+            return ['code' => 2, 'msg' => "{$name} 服务不存在"];
         }
     }
 
@@ -198,7 +219,7 @@ class Process extends AbstractProcess
             foreach ($this->process as $name => $process) {
                 $result = $this->stop($name);
                 if ($result['code'] == 2) {
-                    $msg .= "{$name}{$result['msg']};";
+                    $msg .= "{$name} {$result['msg']};";
                 }
             }
             return ['code' => 0, 'msg' => $msg ?? "全部停止命令发送成功"];
@@ -216,7 +237,7 @@ class Process extends AbstractProcess
             \processFile()->setContent($process);
             unset($this->process[$name]);
             $this->clearLog($name);
-            return ['code' => 0, 'msg' => "{$name}删除成功"];
+            return ['code' => 0, 'msg' => "{$name} 删除成功"];
         } else {
             return $result;
         }
@@ -237,7 +258,7 @@ class Process extends AbstractProcess
             $process[$config['name']] = $conf;
             $this->create($config['name'], $conf);
             \processFile()->setContent($process);
-            return ['code' => 0, 'msg' => '添加成功'];
+            return ['code' => 0, 'msg' => "{$config['name']}添加成功"];
         } else {
             return ['code' => 2, 'msg' => "非法请求"];
         }
@@ -247,9 +268,9 @@ class Process extends AbstractProcess
     {
         $file = PMD_HOME . DIRECTORY_SEPARATOR . "log" . DIRECTORY_SEPARATOR . "{$name}.log";
         if (unlink($file)) {
-            return ['code' => 0, 'msg' => '清理成功'];
+            return ['code' => 0, 'msg' => "{$name} 日志清理成功"];
         } else {
-            return ['code' => 2, 'msg' => '清理失败'];
+            return ['code' => 2, 'msg' => "{$name} 日志清理失败"];
         }
     }
 
