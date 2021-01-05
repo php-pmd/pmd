@@ -62,6 +62,7 @@ class FileLogger implements LoggerInterface
 
     public function writeln($msg)
     {
+        $this->write("{$msg}");
     }
 
     public function close()

@@ -9,15 +9,6 @@ class Process extends AbstractProcess
 
     public function start($name)
     {
-        if (!isset($this->process[$name])) {
-            $this->process[$name] = [
-                'name' => $name,
-                'runtime' => 0,
-                'stop_time' => 0,
-                'error_msg' => '',
-                'pids' => [],
-            ];
-        }
         try {
             $config = \processFile()->getContent();
             if (isset($config[$name])) {
@@ -25,7 +16,7 @@ class Process extends AbstractProcess
                 for ($i = 0; $i < $count; $i++) {
                     $this->createOne($name, $config[$name]);
                 }
-                return ['code' => 0, 'msg' => '启动成功'];
+                return ['code' => 0, 'msg' => '启动命令发送成功'];
             } else {
                 return ['code' => 2, 'msg' => '配置不存在'];
             }
@@ -38,14 +29,17 @@ class Process extends AbstractProcess
 
     public function create($name, array $config)
     {
-        if ($config['autostart'] ?? false) {
+        if (!isset($this->process[$name])) {
             $this->process[$name] = [
                 'name' => $name,
+                'cmd' => $config['cmd'],
                 'runtime' => 0,
                 'stop_time' => 0,
                 'error_msg' => '',
                 'pids' => [],
             ];
+        }
+        if ($config['autostart'] ?? false) {
             $count = $config['count'] ?? 1;
             for ($i = 0; $i < $count; $i++) {
                 try {
@@ -56,14 +50,6 @@ class Process extends AbstractProcess
                     break;
                 }
             }
-        } else {
-            $this->process[$name] = [
-                'name' => $name,
-                'runtime' => 0,
-                'stop_time' => 0,
-                'error_msg' => '',
-                'pids' => [],
-            ];
         }
     }
 
@@ -90,8 +76,15 @@ class Process extends AbstractProcess
             $worker->stderr->on('data', static function ($data) use ($fileLogger) {
                 $fileLogger->error($data);
             });
-            $worker->on('exit', function ($exitCode) use ($name, $pid) {
-                \logger()->info("{$name}[{$pid}] exitCode:{$exitCode}");
+            $worker->on('exit', function ($exitCode) use ($fileLogger, $name, $pid) {
+                if ($exitCode == 0) {
+                    $fileLogger->info("{$name}[{$pid}] exitCode:{$exitCode}");
+                    \logger()->info("{$name}[{$pid}] exitCode:{$exitCode}");
+                } else {
+                    $fileLogger->error("{$name}[{$pid}] exitCode:{$exitCode}");
+                    \logger()->error("{$name}[{$pid}] exitCode:{$exitCode}");
+                    $this->process[$name]['error_msg'] = "进程异常";
+                }
                 unset($this->allProcess[$pid]);
                 foreach ($this->process[$name]['pids'] as $index => $item) {
                     if ($item == $pid) {
@@ -134,7 +127,7 @@ class Process extends AbstractProcess
                     \loop()->cancelTimer($timer);
                 }
             });
-            return ['code' => 0, 'msg' => '重启成功'];
+            return ['code' => 0, 'msg' => '重启命令发送成功'];
         }
     }
 
@@ -151,7 +144,7 @@ class Process extends AbstractProcess
             } else {
                 return ['code' => 2, 'msg' => "未设置服务"];
             }
-            return ['code' => 0, 'msg' => '全部重启成功'];
+            return ['code' => 0, 'msg' => '全部重启命令发送成功'];
         } else {
             return $result;
         }
@@ -175,9 +168,8 @@ class Process extends AbstractProcess
                             }
                         });
                     }
-                    return ['code' => 0, 'msg' => '停止成功'];
                 }
-                return ['code' => 0, 'msg' => '停止成功'];
+                return ['code' => 0, 'msg' => '停止命令发送成功'];
             } catch (\Throwable $throwable) {
                 $this->process[$name]['error_msg'] = $throwable->getMessage();
                 trigger_error("[{$name}] stop fail.");
@@ -199,7 +191,7 @@ class Process extends AbstractProcess
                     $msg .= "{$name}{$result['msg']};";
                 }
             }
-            return ['code' => 0, 'msg' => $msg ?? "全部停止成功"];
+            return ['code' => 0, 'msg' => $msg ?? "全部停止命令发送成功"];
         } else {
             return ['code' => 2, 'msg' => "未设置服务"];
         }

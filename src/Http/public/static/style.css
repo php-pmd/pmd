@@ -258,7 +258,7 @@ tr.shade td {
     color: white;
     display: block;
     height: 20px;
-    border: 2px solid #c3c3c3;
+    border: 1px solid #c3c3c3;
     text-align: center;
     font-size: 95%;
     line-height: 20px;
@@ -282,11 +282,11 @@ tr.shade td {
 }
 
 .statusrunning {
-    background-color: #5ddc4d;
+    background-color: #0f8800;
 }
 
 .statuserror {
-    background-color: #ec696f;
+    background-color: #ad0000;
 }
 
 #footer a {
