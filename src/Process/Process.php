@@ -77,21 +77,23 @@ class Process extends AbstractProcess
                 $fileLogger->error($data);
             });
             $worker->on('exit', function ($exitCode) use ($fileLogger, $name, $pid) {
-                if ($exitCode == 0) {
+                if ($exitCode === 0) {
                     $fileLogger->info("{$name}[{$pid}] exitCode:{$exitCode}");
                     \logger()->info("{$name}[{$pid}] exitCode:{$exitCode}");
+                } elseif ($exitCode == '' || $exitCode == 137) {
+                    $fileLogger->info("{$name} kill exitCode:{$exitCode}");
+                    \logger()->info("{$name} kill exitCode:{$exitCode}");
+                    $this->process[$name]['error_msg'] = "被外界终止";
+                } elseif ($exitCode == 127) {
+                    $fileLogger->info("{$name} not running exitCode:{$exitCode}");
+                    \logger()->info("{$name} not running exitCode:{$exitCode}");
+                    $this->process[$name]['error_msg'] = "进程命令错误";
                 } else {
                     $fileLogger->error("{$name}[{$pid}] exitCode:{$exitCode}");
                     \logger()->error("{$name}[{$pid}] exitCode:{$exitCode}");
-                    $this->process[$name]['error_msg'] = "进程异常";
+                    $this->process[$name]['error_msg'] = "进程异常 exit code:{$exitCode}";
                 }
-                unset($this->allProcess[$pid]);
-                foreach ($this->process[$name]['pids'] as $index => $item) {
-                    if ($item == $pid) {
-                        unset($this->process[$name]['pids'][$index]);
-                        break;
-                    }
-                }
+                $this->unsetProcess($pid);
                 if (count($this->process[$name]['pids']) == 0) {
                     $this->process[$name]['pids'] = [];
                     $this->process[$name]['runtime'] = 0;
@@ -155,19 +157,27 @@ class Process extends AbstractProcess
         if (isset($this->process[$name])) {
             try {
                 if (isset($this->process[$name]['pids']) && count($this->process[$name]['pids']) > 0) {
-                    foreach ($this->process[$name]['pids'] as $pid) {
-                        /**
-                         * @var \React\ChildProcess\Process $process
-                         */
-                        $process = $this->allProcess[$pid];
-                        \loop()->addPeriodicTimer(0.5, function ($timer) use ($process) {
+                    $start_time = time();
+                    \loop()->addPeriodicTimer(0.3, function ($timer) use ($name, $start_time) {
+                        foreach ($this->process[$name]['pids'] as $index => $pid) {
+                            /**
+                             * @var \React\ChildProcess\Process $process
+                             */
+                            $process = $this->allProcess[$pid];
                             if ($process->isRunning()) {
-                                $process->terminate(SIGINT);
+                                if (time() - $start_time >= 1) {
+                                    $process->terminate(SIGTERM);
+                                } elseif (time() - $start_time >= 2) {
+                                    $process->terminate(SIGKILL);
+                                } else {
+                                    $process->terminate(SIGINT);
+                                }
                             } else {
-                                if ($process->isTerminated()) \loop()->cancelTimer($timer);
+                                $this->unsetProcess($pid);
+                                \loop()->cancelTimer($timer);
                             }
-                        });
-                    }
+                        }
+                    });
                 }
                 return ['code' => 0, 'msg' => '停止命令发送成功'];
             } catch (\Throwable $throwable) {

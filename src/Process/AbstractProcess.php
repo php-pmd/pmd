@@ -16,6 +16,19 @@ abstract class AbstractProcess implements ProcessInterface
         return $this->allProcess;
     }
 
+    public function unsetProcess($pid)
+    {
+        unset($this->allProcess[$pid]);
+        foreach ($this->process as $name => $process) {
+            $index = array_search($pid, $process['pids']);
+            if ($index !== false) {
+                unset($this->process[$name]['pids'][$index]);
+                $this->process[$name]['pids'] = array_values($this->process[$name]['pids']);
+                break;
+            }
+        }
+    }
+
     public function __construct($processConfig)
     {
         if ($processConfig && !empty($processConfig) && count($processConfig)) {

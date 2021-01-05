@@ -11,6 +11,7 @@ use PhpPmd\Pmd\Http\Template;
 use PhpPmd\Pmd\Http\HttpServer;
 use PhpPmd\Pmd\Log\Logger;
 use PhpPmd\Pmd\Socket\SocketServer;
+use React\ChildProcess\Process;
 use React\EventLoop\Factory;
 
 /**
@@ -226,16 +227,27 @@ class Pmd
             case \SIGTERM:
             case \SIGHUP:
                 $allProcess = \socket()->getProcess()->getAllProcess();
-                foreach ($allProcess as $pid => $process) {
-                    \loop()->addPeriodicTimer(0.1, function ($timer) use ($process) {
+                $start_time = time();
+                \loop()->addPeriodicTimer(0.3, function ($timer) use ($allProcess, $start_time) {
+                    /**
+                     * @var Process $process
+                     */
+                    foreach ($allProcess as $pid => $process) {
                         if ($process->isRunning()) {
-                            $process->terminate(SIGINT);
+                            if (time() - $start_time >= 1) {
+                                $process->terminate(SIGTERM);
+                            } elseif (time() - $start_time >= 2) {
+                                $process->terminate(SIGKILL);
+                            } else {
+                                $process->terminate(SIGINT);
+                            }
                         } else {
-                            if ($process->isTerminated()) \loop()->cancelTimer($timer);
+                            \socket()->getProcess()->unsetProcess($pid);
+                            \loop()->cancelTimer($timer);
                         }
-                    });
-                }
-                \loop()->addPeriodicTimer(0.1, function ($timer) {
+                    }
+                });
+                \loop()->addPeriodicTimer(0.3, function ($timer) {
                     if (count(\socket()->getProcess()->getAllProcess()) == 0) {
                         \loop()->cancelTimer($timer);
                         \logger()->info("PMD stop success[<g>OK</g>].");
@@ -275,12 +287,11 @@ class Pmd
     {
         static::injection('socket', function () {
             $config = \configFile()->getContent();
-            if (isset($config['socket']['port'])) {
-                $socket_port = $config['socket']['port'];
-            } else {
-                $ip = static::$local_ip;
-                $socket_port = $config['http']['port'] ?? 2021;
-                $socket_port += 1;
+            $socket_port = $config['socket']['port'] ?? 0;
+            $ip = static::$local_ip;
+            $socket = new SocketServer($socket_port);
+            if ($socket_port == 0) {
+                $socket_port = $socket->getPort();
                 $config['socket'] = [
                     'name' => 'local',
                     'ip' => $ip,
@@ -291,7 +302,7 @@ class Pmd
                 $config['remote_socket']["{$ip}:{$socket_port}"] = $config['socket'];
                 \configFile()->setContent($config);
             }
-            return new SocketServer((int)$socket_port);
+            return $socket;
         });
         \socket();
     }

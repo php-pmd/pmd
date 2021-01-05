@@ -2,6 +2,7 @@
 
 namespace PhpPmd\Pmd\Socket;
 
+use PhpPmd\Pmd\Process\AbstractProcess;
 use PhpPmd\Pmd\Process\Process;
 use PhpPmd\Pmd\Socket\Business\AuthToken;
 use PhpPmd\Pmd\Socket\Protocols\JsonNL;
@@ -11,9 +12,11 @@ use React\Socket\ConnectionInterface;
 class SocketServer extends AbstractSocket
 {
     /**
-     * @var Process $process
+     * @var AbstractProcess $process
      */
     protected $process;
+
+    protected $port;
 
     protected $connections = [];
 
@@ -24,15 +27,26 @@ class SocketServer extends AbstractSocket
         $socket->on('connection', function (ConnectionInterface $connection) {
             $this->initEvents($connection);
         });
-        \loop()->addPeriodicTimer(100, function () {
+        if ($port == 0) {
+            $address = explode(':', $socket->getAddress());
+            $this->port = $address[2];
+        } else {
+            $this->port = $port;
+        }
+        \loop()->addPeriodicTimer(10, function () {
             foreach ($this->connections as $remoteAddress => $connection) {
-                if (time() > $this->connections[$remoteAddress]['live_last_time'] + 120) {
+                if (time() > $this->connections[$remoteAddress]['live_last_time'] + 70) {
                     $connection['connection']->close();
                     unset($this->connections[$remoteAddress]);
                 }
             }
         });
-        \logger()->writeln(" TCP  server listening on port <g>{$port}</g>.");
+        \logger()->writeln(" TCP  server listening on port <g>{$this->port}</g>.");
+    }
+
+    public function getPort()
+    {
+        return $this->port;
     }
 
     private function initEvents(ConnectionInterface $connection)
@@ -69,7 +83,7 @@ class SocketServer extends AbstractSocket
     }
 
     /**
-     * @return Process
+     * @return AbstractProcess|Process
      */
     public function getProcess()
     {
