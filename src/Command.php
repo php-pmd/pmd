@@ -60,7 +60,7 @@ class Command
 <y>Usage</y>: 
   pmd <g><command></g> <g>[option]</g>
 <y>Description:</y>
-  Process manager based on reactPHP.
+  Process manager based on ReactPHP.
 <y>Commands</y>:
   <g>start</g>\t\tStart PMD.
   <g>restart</g>\tRestart PMD.

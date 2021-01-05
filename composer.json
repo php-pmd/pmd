@@ -1,7 +1,7 @@
 {
   "name": "php-pmd/pmd",
   "type": "library",
-  "description": "Process manager based on reactPHP",
+  "description": "Process manager based on ReactPHP",
   "license": "MIT",
   "keywords": [
     "php",
