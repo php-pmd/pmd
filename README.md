@@ -41,10 +41,10 @@ pmd -v | pmd --version
 
 HTTP 管理面板
 
-![PMD Console](tmp/pmd.jpg)
+![PMD Console](tmp/pmd.png)
 
 提供远程进程 新增、删除、重启、停止、删除、查看日志、清空日志等...
 
-![PMD Set](tmp/set.jpg)
+![PMD Set](tmp/set.png)
 
 设置远程 PMD 服务，通过`pmd process`查看服务配置信息
