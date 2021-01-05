@@ -415,7 +415,7 @@ class Pmd
                 return $result;
             };
             if (!isset($http_config['port']) || $http_config['port'] == null || !$portRegx($http_config['port'])) {
-                $http_config['port'] = static::getStdinValue(
+                $http_config['port'] = (int)static::getStdinValue(
                     'Please enter the HTTP service port <g>(2021)</g>:',
                     2021,
                     $portRegx
