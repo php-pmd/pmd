@@ -4,7 +4,7 @@
 
 ## 安装
 
-强烈建议全局安装使用，并将 `composer bin` 目录添加到 PATH 环境变量中
+务必全局安装使用，并将 `composer bin` 目录添加到 PATH 环境变量中
 
 ```bash
 composer global require php-pmd/pmd
