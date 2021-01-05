@@ -65,4 +65,15 @@ class ProcessBusiness extends SocketBusiness
         return $this->send($address, $cmd, $callback);
     }
 
+    public function plusOne($address, $name, $callback)
+    {
+        $cmd = ['cmd' => 'plusOne', 'data' => ['name' => $name]];
+        return $this->send($address, $cmd, $callback);
+    }
+
+    public function minusOne($address, $name, $callback)
+    {
+        $cmd = ['cmd' => 'minusOne', 'data' => ['name' => $name]];
+        return $this->send($address, $cmd, $callback);
+    }
 }

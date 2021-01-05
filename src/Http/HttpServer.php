@@ -31,6 +31,8 @@ class HttpServer
         Route::post('/restart', 'Controller\\ProcessController@restart');
         Route::post('/stopall', 'Controller\\ProcessController@stopall');
         Route::post('/restartall', 'Controller\\ProcessController@restartall');
+        Route::post('/minusOne', 'Controller\\ProcessController@minusOne');
+        Route::post('/plusOne', 'Controller\\ProcessController@plusOne');
     }
 
     public function server()

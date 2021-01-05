@@ -138,6 +138,34 @@ window.onload = function () {
                     this.tips = error.bodyText;
                 });
             },
+            plusOne: function (name) {
+                this.$http.post('/plusOne', {
+                    name: name,
+                    address: this.address
+                }).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
+                        this.tips = response.data.msg;
+                    } else {
+                        this.tips = response.data.msg !== undefined ? response.data.msg : '';
+                    }
+                }).catch(function (error) {
+                    this.tips = error.bodyText;
+                });
+            },
+            minusOne: function (name) {
+                this.$http.post('/minusOne', {
+                    name: name,
+                    address: this.address
+                }).then(function (response) {
+                    if (200 === response.status && 0 === response.data.code) {
+                        this.tips = response.data.msg;
+                    } else {
+                        this.tips = response.data.msg !== undefined ? response.data.msg : '';
+                    }
+                }).catch(function (error) {
+                    this.tips = error.bodyText;
+                });
+            },
             addProcess: function () {
                 this.add.address = this.address;
                 this.$http.post('/add',

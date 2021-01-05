@@ -69,7 +69,15 @@
                         <span v-else="process.pids.length === 0 && !process.stop_time"> -- </span>
                     </div>
                 </td>
-                <td class="processnum"><span>{{process.pids.length}}</span></td>
+                <td class="processnum">
+                    <span>
+                    <button v-if="process.pids.length > 0" v-bind:disabled="process.pids.length<=0"
+                            v-on:click="minusOne(name)">-</button>
+                     {{process.pids.length}}
+                    <button v-if="process.pids.length > 0" v-bind:disabled="process.pids.length>=128"
+                            v-on:click="plusOne(name)">+</button>
+                    </span>
+                </td>
                 <td class="status">
                     <span class="statusrunning" v-if="process.pids.length > 0">运行</span>
                     <span class="statuserror" v-else-if="process.error_msg != ''">异常</span>

@@ -24,7 +24,7 @@ class Pmd
      * @var Container $container
      */
     public static $container;
-    protected static $version = 'v0.1.1';
+    protected static $version = 'v0.1.2';
     protected static $http_enable = false;
     protected static $local_ip = '';
 

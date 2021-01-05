@@ -6,6 +6,8 @@ use PhpPmd\Pmd\Process\ProcessInterface;
 use PhpPmd\Pmd\Socket\Business\AddProcess;
 use PhpPmd\Pmd\Socket\Business\ClearLogProcess;
 use PhpPmd\Pmd\Socket\Business\DeleteProcess;
+use PhpPmd\Pmd\Socket\Business\MinusOneProcess;
+use PhpPmd\Pmd\Socket\Business\PlusOneProcess;
 use PhpPmd\Pmd\Socket\Business\ProcessList;
 use PhpPmd\Pmd\Socket\Business\RestartallProcess;
 use PhpPmd\Pmd\Socket\Business\RestartProcess;
@@ -29,7 +31,9 @@ class Route
         'restart' => RestartProcess::class,
         'restartall' => RestartallProcess::class,
         'stopall' => StopallProcess::class,
-        'clearLog' => ClearLogProcess::class
+        'clearLog' => ClearLogProcess::class,
+        'minusOne' => MinusOneProcess::class,
+        'plusOne' => PlusOneProcess::class
     ];
 
     /**

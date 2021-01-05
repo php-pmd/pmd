@@ -60,6 +60,7 @@ class Process extends AbstractProcess
     /**
      * @param $name
      * @param $config
+     * @return bool
      * @throws \Throwable
      */
     public function createOne($name, $config)
@@ -102,6 +103,7 @@ class Process extends AbstractProcess
                 foreach ($this->process[$name]['pids'] as $index => $item) {
                     if ($item == $pid) {
                         unset($this->process[$name]['pids'][$index]);
+                        $this->process[$name]['pids'] = array_values($this->process[$name]['pids']);
                         break;
                     }
                 }
@@ -114,6 +116,7 @@ class Process extends AbstractProcess
             });
             $this->process[$name]['pids'][] = $pid;
             $this->allProcess[$pid] = $worker;
+            return true;
         } catch (\Throwable $throwable) {
             trigger_error("[{$config['cmd']}] run fail.");
             throw $throwable;
@@ -169,36 +172,8 @@ class Process extends AbstractProcess
         if (isset($this->process[$name])) {
             try {
                 if (isset($this->process[$name]['pids']) && count($this->process[$name]['pids']) > 0) {
-                    $start_time = time();
                     foreach ($this->process[$name]['pids'] as $index => $pid) {
-                        \loop()->addPeriodicTimer(0.3, function ($timer) use ($name, $pid, $start_time) {
-                            /**
-                             * @var \React\ChildProcess\Process $process
-                             */
-                            $process = $this->allProcess[$pid] ?? null;
-                            if ($process) {
-                                if ($process->isRunning()) {
-                                    if (time() - $start_time >= 1) {
-                                        $process->terminate(SIGTERM);
-                                    } elseif (time() - $start_time >= 2) {
-                                        $process->terminate(SIGKILL);
-                                    } else {
-                                        $process->terminate(SIGINT);
-                                    }
-                                } else {
-                                    unset($this->allProcess[$pid]);
-                                    foreach ($this->process[$name]['pids'] as $index => $item) {
-                                        if ($item == $pid) {
-                                            unset($this->process[$name]['pids'][$index]);
-                                            break;
-                                        }
-                                    }
-                                    \loop()->cancelTimer($timer);
-                                }
-                            } else {
-                                \loop()->cancelTimer($timer);
-                            }
-                        });
+                        $this->stopOne($name, $pid);
                     }
                 }
                 return ['code' => 0, 'msg' => "{$name} 停止命令发送成功"];
@@ -210,6 +185,45 @@ class Process extends AbstractProcess
 
         } else {
             return ['code' => 2, 'msg' => "{$name} 服务不存在"];
+        }
+    }
+
+    public function stopOne($name, $pid = null)
+    {
+        if (count($this->process[$name]['pids']) > 0) {
+            $pid = $pid ? $pid : $this->process[$name]['pids'][0];
+            $start_time = time();
+            \loop()->addPeriodicTimer(0.3, function ($timer) use ($name, $pid, $start_time) {
+                /**
+                 * @var \React\ChildProcess\Process $process
+                 */
+                $process = $this->allProcess[$pid] ?? null;
+                if ($process) {
+                    if ($process->isRunning()) {
+                        if (time() - $start_time >= 1) {
+                            $process->terminate(SIGTERM);
+                        } elseif (time() - $start_time >= 2) {
+                            $process->terminate(SIGKILL);
+                        } else {
+                            $process->terminate(SIGINT);
+                        }
+                    } else {
+                        unset($this->allProcess[$pid]);
+                        foreach ($this->process[$name]['pids'] as $index => $item) {
+                            if ($item == $pid) {
+                                unset($this->process[$name]['pids'][$index]);
+                                break;
+                            }
+                        }
+                        \loop()->cancelTimer($timer);
+                    }
+                } else {
+                    \loop()->cancelTimer($timer);
+                }
+            });
+            return true;
+        } else {
+            return false;
         }
     }
 
