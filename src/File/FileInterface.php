@@ -4,7 +4,7 @@ namespace PhpPmd\Pmd\File;
 
 interface FileInterface
 {
-    public function __construct(string $file);
+    public function __construct($file);
 
     public function getContent();
 
