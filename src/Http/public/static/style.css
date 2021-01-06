@@ -104,15 +104,14 @@ html, body {
 }
 
 #wrapper {
-    min-height: 100%;
+    min-height: 93%;
     height: auto !important;
-    height: 100%;
-    margin: 0 auto -31px;
+    height: 93%;
+    margin: 0 auto 5px auto;
 }
 
-#footer,
-.push {
-    height: 30px;
+#footer {
+    height: 6%;
 }
 
 .hidden {
@@ -269,7 +268,7 @@ tr.shade td {
 #footer {
     margin: 0 auto;
     padding: 0 10px;
-    line-height: 30px;
+    line-height: 38px;
     border: 1px solid #C8C8C2;
     border-bottom-width: 0;
     background-color: #FBFBFB;
@@ -277,6 +276,10 @@ tr.shade td {
     opacity: 0.7;
     color: #000;
     font-size: 95%;
+}
+
+.tail {
+    overflow-y: scroll;
 }
 
 .process {

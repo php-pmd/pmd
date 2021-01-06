@@ -76,26 +76,26 @@ class Process extends AbstractProcess
                 $fileLogger = \logger();
             }
             $worker->stdout->on('data', static function ($data) use ($fileLogger) {
-                $fileLogger->info($data);
+                $fileLogger->write($data);
             });
             $worker->stderr->on('data', static function ($data) use ($fileLogger) {
-                $fileLogger->error($data);
+                $fileLogger->write($data);
             });
             $worker->on('exit', function ($exitCode, $sig) use ($fileLogger, $name, $pid) {
                 if ($sig == 9 && $exitCode == null) {
-                    $fileLogger->write("{$name}  kill exitCode:{$exitCode}");
+                    $fileLogger->writeln("{$name}  kill exitCode:{$exitCode}");
                     \logger()->info("{$name}  kill exitCode:{$exitCode}");
                     $this->process[$name]['error_msg'] = "被强行终止";
                 } elseif ($exitCode == 0) {
-                    $fileLogger->write("{$name} [{$pid}] exitCode:{$exitCode}");
+                    $fileLogger->writeln("{$name} [{$pid}] exitCode:{$exitCode}");
                     \logger()->info("{$name} [{$pid}] exitCode:{$exitCode}");
                     $this->process[$name]['error_msg'] = "";
                 } elseif ($exitCode == 127) {
-                    $fileLogger->write("{$name}  not running exitCode:{$exitCode}");
+                    $fileLogger->writeln("{$name}  not running exitCode:{$exitCode}");
                     \logger()->info("{$name}  not running exitCode:{$exitCode}");
                     $this->process[$name]['error_msg'] = "进程命令错误";
                 } else {
-                    $fileLogger->write("{$name} [{$pid}] exitCode:{$exitCode}");
+                    $fileLogger->writeln("{$name} [{$pid}] exitCode:{$exitCode}");
                     \logger()->error("{$name} [{$pid}] exitCode:{$exitCode}");
                     $this->process[$name]['error_msg'] = "进程异常 exit code:{$exitCode}";
                 }

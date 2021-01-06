@@ -71,7 +71,7 @@
                 </td>
                 <td class="processnum">
                     <span>
-                    <button v-if="process.pids.length > 0" v-bind:disabled="process.pids.length<=0"
+                    <button v-if="process.pids.length > 0" v-bind:disabled="process.pids.length<=1"
                             v-on:click="minusOne(name)">-</button>
                      {{process.pids.length}}
                     <button v-if="process.pids.length > 0" v-bind:disabled="process.pids.length>=128"

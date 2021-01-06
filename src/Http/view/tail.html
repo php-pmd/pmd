@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title><?=$site_title?> <?=$version?></title>
+    <meta name="viewport" content="user-scalable=0">
+    <link rel="icon" type="image/png" href="/static/logo_mini.png">
+    <meta http-equiv="Cache-Control" content="max-age=86400"/>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div id="wrapper">
+    <div id="header">
+        <div class="left">
+            <span><h1><?=$site_title?></h1></span>
+        </div>
+        <div class="right">
+            服务IP:<span><?=$local_ip?></span> <span><?=$name?></span>
+        </div>
+    </div>
+    <hr>
+    <div>
+        <div class="status_msg tail" id="tail"><?php echo $tail=="" ? "no content" : $tail;?></div>
+    </div>
+</div>
+<div class="clr" id="footer">
+    <div class="left">
+        <a href="https://github.com/php-pmd/pmd" target="_blank"><?=$site_title?> <?=$version?></a>, Theme by
+        supervisor.
+    </div>
+    <div class="right">
+        <strong>Copyright © <a href="https://github.com/imparting" target="_blank">Imparting</a> All rights
+            reserved</strong>
+    </div>
+</div>
+<script>
+    window.onload = function () {
+        document.getElementById("tail").style.maxHeight = (window.document.body.clientHeight - 120) + "px";
+    }
+</script>
+</body>
+</html>
